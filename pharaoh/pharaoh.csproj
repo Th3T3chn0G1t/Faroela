@@ -10,6 +10,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<AllFiles Include="**\*.cs"/>
+		<AllFiles Include="**\*.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.2.3" />
+		<PackageReference Include="Dock.Avalonia" Version="11.2.0" />
 	</ItemGroup>
 </Project>
