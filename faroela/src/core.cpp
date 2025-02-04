@@ -8,13 +8,21 @@ namespace faroela {
 		make_default_loggers("faroela.log");
 
 		const auto& logger = spdlog::get("faroela");
+		spdlog::stopwatch time;
 
-		logger->info("Initializing Faroela...");
+		logger->info("Initializing...");
 
-		logger->info("Done.");
+		logger->info("Done. (Took {})", time.elapsed_ms());
 	}
 
 	extern "C" FARO_EXPORT void faro_export_shutdown(void) {
+		const auto& logger = spdlog::get("faroela");
+		spdlog::stopwatch time;
+
+		logger->info("Shutting down...");
+
+		logger->info("Done. (Took {})", time.elapsed_ms());
+
 		spdlog::shutdown();
 	}
 }
