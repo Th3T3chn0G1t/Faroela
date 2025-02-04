@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: MIT
 
+cmake-build*
 build*
 
 .vs*
+.idea
+
+*.log

@@ -8,11 +8,13 @@ target_compile_features(faroela PUBLIC cxx_std_23)
 
 set(
 	FARO_SOURCES
-	core.cpp)
+	core.cpp
+	log.cpp)
 
 set(
 	FARO_HEADERS
-	core.hpp)
+	core.hpp
+	log.hpp)
 
 list(TRANSFORM FARO_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
 list(TRANSFORM FARO_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)
@@ -24,7 +26,10 @@ target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/faro
 
 target_include_directories(faroela PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/)
 
-set_target_properties(faroela PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(
+		faroela PROPERTIES
+		CXX_VISIBILITY_PRESET hidden
+		PREFIX "")
 
 target_link_libraries(faroela PRIVATE spdlog)
 

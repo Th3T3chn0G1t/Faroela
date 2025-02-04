@@ -32,24 +32,4 @@ check_ipo_supported(RESULT IPO_SUPPORTED)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${IPO_SUPPORTED})
 
 add_subdirectory(faroela)
-
-include(ExternalProject)
-
-set(PHARO_BINDIR ${CMAKE_CURRENT_BINARY_DIR}/pharaoh/)
-
-ExternalProject_Add(
-	pharaoh
-	CONFIGURE_COMMAND ""
-	INSTALL_COMMAND ""
-	SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/pharaoh
-	BUILD_ALWAYS true
-	BUILD_COMMAND
-		dotnet build ${CMAKE_CURRENT_LIST_DIR}/pharaoh/pharaoh.csproj
-		--artifacts-path ${CMAKE_CURRENT_BINARY_DIR}/pharaoh
-		--output ${PHARO_BINDIR}
-		--self-contained $<IF:$<CONFIG:Debug>,true,false>)
-
-add_custom_command(
-	TARGET pharaoh POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		$<TARGET_FILE:faroela> ${PHARO_BINDIR})
+add_subdirectory(pharaoh)

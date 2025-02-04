@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: MIT
 
 #include <faroela/core.hpp>
+#include <faroela/log.hpp>
 
 namespace faroela {
 	extern "C" FARO_EXPORT void faro_export_initialize(void) {
-		auto console = spdlog::stdout_color_mt("console");
+		make_default_loggers("faroela.log");
 
-		console->info("Initializing Faroela...");
+		const auto& logger = spdlog::get("faroela");
 
-		console->info("Done.");
+		logger->info("Initializing Faroela...");
+
+		logger->info("Done.");
+	}
+
+	extern "C" FARO_EXPORT void faro_export_shutdown(void) {
+		spdlog::shutdown();
 	}
 }
