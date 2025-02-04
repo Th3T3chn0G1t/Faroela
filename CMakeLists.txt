@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 # TODO: Make these optional -- use less optimal impls in older cmake.
 # `cmake_policy(CMP0069)`/`check_ipo_supported()`: 3.9
 # `string(PREPEND)`: 3.10

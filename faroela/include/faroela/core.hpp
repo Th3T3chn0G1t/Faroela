@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifdef _WIN32
 # define FARO_WINDOWS
 #endif

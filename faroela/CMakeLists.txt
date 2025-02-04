@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 add_subdirectory(vendor)
 
 add_library(faroela MODULE)
@@ -23,6 +25,8 @@ target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/faro
 target_include_directories(faroela PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/)
 
 set_target_properties(faroela PROPERTIES CXX_VISIBILITY_PRESET hidden)
+
+target_link_libraries(faroela PRIVATE spdlog)
 
 cxx_options_conditional(
 		COMMAND target_compile_options
