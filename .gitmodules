@@ -5,3 +5,9 @@
 	url = https://github.com/gabime/spdlog
 	shallow = true
 	ignore = dirty
+
+[submodule "faroela/vendor/tracy"]
+	path = faroela/vendor/tracy
+	url = https://github.com/wolfpld/tracy
+	shallow = true
+	ignore = dirty
