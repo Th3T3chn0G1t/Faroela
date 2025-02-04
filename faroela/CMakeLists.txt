@@ -31,7 +31,7 @@ set_target_properties(
 		CXX_VISIBILITY_PRESET hidden
 		PREFIX "")
 
-target_link_libraries(faroela PRIVATE spdlog)
+target_link_libraries(faroela PRIVATE spdlog tracy)
 
 cxx_options_conditional(
 		COMMAND target_compile_options
