@@ -9,7 +9,8 @@
 # `target_precompile_headers()`: 3.16
 # `cmake_language()`: 3.18
 # `target_compile_features(cxx_std_23)`: 3.20
-cmake_minimum_required(VERSION 3.20)
+# `CMAKE_GENERATOR "Visual Studio 17 2022"`: 3.21
+cmake_minimum_required(VERSION 3.21)
 
 # Enforce IPO when set.
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
@@ -23,15 +24,29 @@ include(cmake/Utilities.cmake)
 
 project(FARO CXX)
 
-option(FARO_ENABLE_ASAN "Enable building with address sanitizer if available" OFF)
-option(FARO_ENABLE_UBSAN "Enable building with undefined behaviour sanitizer if available" OFF)
-option(FARO_ENABLE_MSAN "Enable building with memory sanitizer if available" OFF)
-option(FARO_ENABLE_TSAN "Enable building with thread sanitizer if available" OFF)
-option(FARO_ENABLE_CFISAN "Enable building with control flow integrity sanitizer if available" OFF)
-
 # Enable IPO globally if supported.
 include(CheckIPOSupported)
 check_ipo_supported(RESULT IPO_SUPPORTED)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${IPO_SUPPORTED})
 
-add_subdirectory(vendor)
+add_subdirectory(faroela)
+
+include(ExternalProject)
+
+set(PHARO_BINDIR ${CMAKE_CURRENT_BINARY_DIR}/pharaoh/)
+
+ExternalProject_Add(
+	pharaoh
+	CONFIGURE_COMMAND ""
+	INSTALL_COMMAND ""
+	SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/pharaoh
+	BUILD_COMMAND
+		dotnet build ${CMAKE_CURRENT_LIST_DIR}/pharaoh/pharaoh.csproj
+		--artifacts-path ${CMAKE_CURRENT_BINARY_DIR}/pharaoh
+		--output ${PHARO_BINDIR}
+		--self-contained $<IF:$<CONFIG:Debug>,true,false>)
+
+add_custom_command(
+	TARGET pharaoh POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		$<TARGET_FILE:faroela> ${PHARO_BINDIR})
