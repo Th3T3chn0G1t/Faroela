@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+
+[submodule "faroela/vendor/spdlog"]
+	path = faroela/vendor/spdlog
+	url = https://github.com/gabime/spdlog
+	shallow = true
+	ignore = dirty
