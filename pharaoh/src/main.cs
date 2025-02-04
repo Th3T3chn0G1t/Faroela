@@ -5,7 +5,7 @@ namespace Pharaoh;
 
 partial class InternalCalls
 {
-	[LibraryImport("faroela.dll", EntryPoint = "faro_export_test", StringMarshalling = StringMarshalling.Utf8)]
+	[LibraryImport("faroela", EntryPoint = "faro_export_test", StringMarshalling = StringMarshalling.Utf8)]
     public static partial void Test(string message);
 };
 
