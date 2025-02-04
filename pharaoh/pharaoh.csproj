@@ -8,6 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="src/main.cs"/>
+		<AllFiles Include="**\*.cs"/>
 	</ItemGroup>
 </Project>

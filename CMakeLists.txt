@@ -40,6 +40,7 @@ ExternalProject_Add(
 	CONFIGURE_COMMAND ""
 	INSTALL_COMMAND ""
 	SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/pharaoh
+	BUILD_ALWAYS true
 	BUILD_COMMAND
 		dotnet build ${CMAKE_CURRENT_LIST_DIR}/pharaoh/pharaoh.csproj
 		--artifacts-path ${CMAKE_CURRENT_BINARY_DIR}/pharaoh
