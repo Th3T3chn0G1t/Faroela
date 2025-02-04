@@ -12,4 +12,4 @@ public partial class Core
 
 	[LibraryImport("faroela", EntryPoint = "faro_export_shutdown", StringMarshalling = StringMarshalling.Utf8)]
     public static partial void Shutdown();
-};
+}

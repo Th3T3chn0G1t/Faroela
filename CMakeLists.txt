@@ -22,7 +22,9 @@ cmake_policy(SET CMP0069 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 cmake_policy(SET CMP0077 NEW)
 
-include(cmake/Utilities.cmake)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+include(cmake/utilities.cmake)
 
 project(FARO CXX)
 

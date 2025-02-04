@@ -1,0 +1,23 @@
+<!-- SPDX-License-Identifier: MIT -->
+
+<Window
+	xmlns="https://github.com/avaloniaui"
+	
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		d:DesignWidth="800"
+		d:DesignHeight="450"
+
+	xmlns:vm="using:Pharaoh.UI"
+	
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		x:Class="Pharaoh.UI.AppWindow"
+		x:DataType="vm:AppWindowModel"
+
+	Title="Pharaoh">
+
+	<Design.DataContext>
+		<vm:AppWindowModel/>
+	</Design.DataContext>
+
+	<vm:DockView />
+</Window>
