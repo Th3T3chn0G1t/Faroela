@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 
+#pragma once
+
+#include <algorithm>
+#include <expected>
 #include <format>
 #include <memory>
+#include <source_location>
 #include <string_view>
 
 #include <spdlog/spdlog.h>

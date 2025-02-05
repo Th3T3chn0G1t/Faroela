@@ -2,6 +2,7 @@
 
 #include <faroela/core.hpp>
 #include <faroela/log.hpp>
+#include <faroela/formatters.hpp>
 
 namespace faroela {
 	void make_default_loggers(const spdlog::filename_t& file) {
@@ -18,10 +19,16 @@ namespace faroela {
 		};
 
 		create_named_logger("faroela");
-		create_named_logger("pharaoh");
+		create_named_logger("client");
 	}
 
-	extern "C" FARO_EXPORT void faro_export_log(int level, const char* message) {
-		spdlog::get("pharaoh")->log(spdlog::level::level_enum(level), std::string_view(message));
+	void client_log(spdlog::level::level_enum level, std::string_view message) {
+		spdlog::get("client")->log(level, message);
+	}
+
+	void log_error(const error& error) {
+		const auto& logger = spdlog::get("faroela");
+
+		logger->error("{} in {}: {}", magic_enum::enum_name(error.code), error.location, error.message);
 	}
 }

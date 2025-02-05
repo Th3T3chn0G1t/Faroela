@@ -14,7 +14,7 @@ public partial class Log
 	private static int ERROR = 4;
 	private static int CRITICAL = 5;
 
-	[LibraryImport("faroela", EntryPoint = "faro_export_log", StringMarshalling = StringMarshalling.Utf8)]
+	[LibraryImport("faroela", EntryPoint = "faro_log", StringMarshalling = StringMarshalling.Utf8)]
 	private static partial void LogBase(int level, string message);
 
 	public static void Trace(string message) => LogBase(TRACE, message);
