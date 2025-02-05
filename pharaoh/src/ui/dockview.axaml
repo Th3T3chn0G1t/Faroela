@@ -19,14 +19,52 @@
 
         <RootDock x:Name="Root" Id="Root" IsCollapsable="False" DefaultDockable="{Binding #MainLayout}">
 
+            <RootDock.Windows>
+            </RootDock.Windows>
+
             <ProportionalDock x:Name="MainLayout" Id="MainLayout" Orientation="Horizontal">
 
+                <ToolDock x:Name="LeftPane" Id="LeftPane" Proportion="0.25" Alignment="Left">
+                    <Tool x:Name="SolutionExplorer" Id="SolutionExplorer" Title="Solution Explorer" x:DataType="Tool">
+                        <TextBlock Text="{Binding Title}"/>
+                    </Tool>
+                </ToolDock>
+                
+                <ProportionalDockSplitter x:Name="LeftSplitter" Id="LeftSplitter" />
+                
                 <ToolDock x:Name="PropertiesPane" Id="PropertiesPane" Proportion="0.3" Alignment="Right">
                     <Tool x:Name="Properties" Id="Properties" Title="Properties" x:DataType="Tool">
                         <TextBlock Text="AAAAAAAAAAAAAA" />
                     </Tool>
                 </ToolDock>
 
+                <ProportionalDockSplitter x:Name="MidSplitter" Id="MidSplitter" />
+
+                <ProportionalDock x:Name="RightPane" Id="RightPane" Orientation="Horizontal">
+
+                    <!-- Documents Pane -->
+
+                    <DocumentDock x:Name="DocumentsPane" Id="DocumentsPane" CanCreateDocument="True" ActiveDockable="Document1">
+                        <DocumentDock.DocumentTemplate>
+                            <DocumentTemplate>
+                                <StackPanel x:DataType="Document">
+                                    <TextBlock Text="Title"/>
+                                    <TextBox Text="{Binding Title}"/>
+                                    <TextBlock Text="Context"/>
+                                    <TextBox Text="{Binding Context}"/>
+                                </StackPanel>
+                            </DocumentTemplate>
+                        </DocumentDock.DocumentTemplate>
+                        <Document x:Name="Document1" Id="Document1" Title="Program.cs" x:DataType="Document">
+                            <TextBlock Text="{Binding Title}"/>
+                        </Document>
+                        <Document x:Name="Document2" Id="Document2" Title="App.axaml" x:DataType="Document">
+                            <TextBlock Text="{Binding Title}"/>
+                        </Document>
+                    </DocumentDock>
+
+                </ProportionalDock>
+                
             </ProportionalDock>
 
         </RootDock>

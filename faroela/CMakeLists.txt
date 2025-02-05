@@ -24,7 +24,7 @@ target_sources(faroela PUBLIC ${FARO_HEADERS})
 
 target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/faroela/pch.hpp)
 
-target_include_directories(faroela PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/)
+target_include_directories(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/)
 
 set_target_properties(
 		faroela PROPERTIES
