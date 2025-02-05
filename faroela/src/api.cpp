@@ -18,5 +18,17 @@ extern "C" {
 		FAROELA_EXPORT void faroela_log(verbosity level, const char* message) {
 			faroela::client_log(spdlog::level::level_enum(level), message);
 		}
+
+		FAROELA_EXPORT void faroela_hid_status(hid::port, bool) {
+
+		}
+
+		FAROELA_EXPORT void faroela_hid_button_event(hid::port, hid::button, bool) {
+
+		}
+
+		FAROELA_EXPORT void faroela_hid_axis_event(hid::port, hid::axis, float) {
+
+		}
 	}
 }
