@@ -12,7 +12,8 @@
 # `cmake_language()`: 3.18
 # `target_compile_features(cxx_std_23)`: 3.20
 # `CMAKE_GENERATOR "Visual Studio 17 2022"`: 3.21
-cmake_minimum_required(VERSION 3.21)
+# `$<LINK_LIBRARY:WHOLE_ARCHIVE>`: 3.24
+cmake_minimum_required(VERSION 3.24)
 
 # Enforce IPO when set.
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
@@ -23,6 +24,7 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 cmake_policy(SET CMP0077 NEW)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(BUILD_SHARED_LIBS OFF)
 
 include(cmake/utilities.cmake)
 
@@ -35,3 +37,4 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${IPO_SUPPORTED})
 
 add_subdirectory(faroela)
 add_subdirectory(pharaoh)
+add_subdirectory(sphinx)

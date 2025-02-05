@@ -26,6 +26,7 @@ namespace faroela {
 		logger->info("Shutting down...");
 
 		logger->info("Done. (Took {})", time.elapsed_ms());
+		logger->info("Done. (Took {})", time.elapsed_ms());
 
 		spdlog::shutdown();
 	}
