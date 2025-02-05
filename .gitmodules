@@ -11,3 +11,6 @@
 	url = https://github.com/wolfpld/tracy
 	shallow = true
 	ignore = dirty
+[submodule "sphinx/vendor/glfw"]
+	path = sphinx/vendor/glfw
+	url = https://github.com/glfw/glfw
