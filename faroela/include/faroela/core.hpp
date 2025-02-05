@@ -3,9 +3,9 @@
 #pragma once
 
 #ifdef _WIN32
-# define FARO_EXPORT __declspec(dllexport)
+# define FAROELA_EXPORT __declspec(dllexport)
 #else
-# define FARO_EXPORT [[gnu::visibility("default")]]
+# define FAROELA_EXPORT [[gnu::visibility("default")]]
 #endif
 
 #include <faroela/result.hpp>

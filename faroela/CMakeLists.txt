@@ -7,22 +7,22 @@ add_library(faroela STATIC)
 target_compile_features(faroela PUBLIC cxx_std_23)
 
 set(
-		FARO_SOURCES
+		FAROELA_SOURCES
 		api.cpp
 		core.cpp
 		log.cpp)
 
 set(
-		FARO_HEADERS
+		FAROELA_HEADERS
 		core.hpp
 		formatters.hpp
 		log.hpp
 		result.hpp)
 
-list(TRANSFORM FARO_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
-list(TRANSFORM FARO_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)
+list(TRANSFORM FAROELA_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
+list(TRANSFORM FAROELA_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)
 
-target_sources(faroela PRIVATE ${FARO_SOURCES} ${FARO_HEADERS})
+target_sources(faroela PRIVATE ${FAROELA_SOURCES} ${FAROELA_HEADERS})
 target_sources(faroela PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/faroela-api/faroela.hpp)
 
 target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/faroela/pch.hpp)

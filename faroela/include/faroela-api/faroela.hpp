@@ -3,15 +3,15 @@
 #pragma once
 
 #ifdef _WIN32
-# define FARO_IMPORT __declspec(dllimport)
+# define FAROELA_IMPORT __declspec(dllimport)
 #else
-# define FARO_IMPORT
+# define FAROELA_IMPORT
 #endif
 
 extern "C" {
 	namespace faroela_api {
-		FARO_IMPORT bool faro_initialize(void);
-		FARO_IMPORT void faro_shutdown(void);
+		FAROELA_IMPORT bool faroela_initialize(void);
+		FAROELA_IMPORT void faroela_shutdown(void);
 
 		enum verbosity : int {
 			trace = 0,
@@ -22,7 +22,7 @@ extern "C" {
 			critical = 5
 		};
 
-		FARO_IMPORT void faro_log(verbosity, const char*);
+		FAROELA_IMPORT void faroela_log(verbosity, const char*);
 
 		namespace hid {
 			enum port : int {
@@ -41,7 +41,7 @@ extern "C" {
 
 		// Signal a HID as having been connected or disconnected. Disconnection must refer to a
 		// previously-connected port.
-		FARO_IMPORT void faro_hid_status(hid::port, bool);
-		FARO_IMPORT void faro_hid_event(hid::port, const char*, bool);
+		FAROELA_IMPORT void faroela_hid_status(hid::port, bool);
+		FAROELA_IMPORT void faroela_hid_event(hid::port, const char*, bool);
 	}
 }

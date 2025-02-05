@@ -7,15 +7,15 @@
 
 extern "C" {
 	namespace faroela_api {
-		FARO_EXPORT bool faro_initialize(void) {
+		FAROELA_EXPORT bool faroela_initialize(void) {
 			return faroela::log_result(faroela::initialize());
 		}
 
-		FARO_EXPORT void faro_shutdown(void) {
+		FAROELA_EXPORT void faroela_shutdown(void) {
 			faroela::shutdown();
 		}
 
-		FARO_EXPORT void faro_log(verbosity level, const char* message) {
+		FAROELA_EXPORT void faroela_log(verbosity level, const char* message) {
 			faroela::client_log(spdlog::level::level_enum(level), message);
 		}
 	}
