@@ -14,3 +14,6 @@
 [submodule "sphinx/vendor/glfw"]
 	path = sphinx/vendor/glfw
 	url = https://github.com/glfw/glfw
+[submodule "faroela/vendor/magic_enum"]
+	path = faroela/vendor/magic_enum
+	url = https://github.com/Neargye/magic_enum
