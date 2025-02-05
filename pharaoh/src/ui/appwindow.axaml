@@ -11,13 +11,76 @@
 	
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		x:Class="Pharaoh.UI.AppWindow"
-		x:DataType="vm:AppWindowModel"
 
 	Title="Pharaoh">
 
-	<Design.DataContext>
-		<vm:AppWindowModel/>
-	</Design.DataContext>
+	<DockPanel>
 
-	<vm:DockView />
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="_File">
+				<MenuItem Header="_Open..." Command="{Binding $parent[Window].FileMenuOpen}"/>
+				<MenuItem Header="_Open Recent">
+					<!-- TODO: Implement recent project population. -->
+					<Separator/>
+					<MenuItem Header="Clear Recent Projects" Command="{Binding $parent[Window].FileMenuClearRecent}"/>
+				</MenuItem>
+
+				<MenuItem Header="_Save" Command="{Binding $parent[Window].FileMenuSave}"/>
+				<MenuItem Header="Save _As..." Command="{Binding $parent[Window].FileMenuSaveAs}"/>
+				
+				<Separator/>
+				
+				<MenuItem Header="_New Project..." Command="{Binding $parent[Window].FileMenuNewProject}"/>
+				
+				<Separator/>
+				
+				<MenuItem Header="_Exit" Command="{Binding $parent[Window].FileMenuExit}"/>
+			</MenuItem>
+
+			<MenuItem Header="_Edit">
+				<MenuItem Header="_Undo" Command="{Binding $parent[Window].EditMenuUndo}"/>
+				<MenuItem Header="_Redo" Command="{Binding $parent[Window].EditMenuRedo}"/>
+
+				<Separator/>
+				
+				<MenuItem Header="Preferences..." Command="{Binding $parent[Window].EditMenuPreferences}"/>
+			</MenuItem>
+
+			<MenuItem Header="_View">
+				<MenuItem Header="_Tool Windows">
+					<MenuItem Header="Scene Hierarchy" Command="{Binding $parent[Window].ViewMenuToolSceneHierarchy}"/>
+					<MenuItem Header="Content Browser" Command="{Binding $parent[Window].ViewMenuToolContentBrowser}"/>
+					<MenuItem Header="Console" Command="{Binding $parent[Window].ViewMenuToolConsole}"/>
+					<MenuItem Header="Inspector" Command="{Binding $parent[Window].ViewMenuToolInspector}"/>
+					<MenuItem Header="Viewport" Command="{Binding $parent[Window].ViewMenuToolViewport}"/>
+				</MenuItem>
+
+				<Separator/>
+				
+				<MenuItem Header="_Save Layout..." Command="{Binding $parent[Window].ViewMenuSaveLayout}"/>
+				<MenuItem Header="_Load Layout..." Command="{Binding $parent[Window].ViewMenuLoadLayout}"/>
+			</MenuItem>
+
+			<!-- TODO: Tooling? Profilers? -->
+			<!-- <MenuItem Header="_Tools"></MenuItem> -->
+			
+			<MenuItem Header="_Project">
+				<MenuItem Header="_Export..." Command="{Binding $parent[Window].ProjectMenuExport}"/>
+				<MenuItem Header="Project _Settings..." Command="{Binding $parent[Window].ProjectMenuSettings}"/>
+				<!-- TODO: What do other engines keep in here? -->
+			</MenuItem>
+
+			<MenuItem Header="_Help">
+				<MenuItem Header="_Manual..." Command="{Binding $parent[Window].HelpMenuManual}"/>
+
+				<Separator/>
+		
+				<!-- TODO: About window. -->
+				<MenuItem Header="_About..."/>
+			</MenuItem>
+		</Menu>
+
+		<vm:DockView/>
+
+	</DockPanel>
 </Window>

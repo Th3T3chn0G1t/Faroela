@@ -10,28 +10,45 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="src\" />
+		<Folder Include="src\"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<AvaloniaResource Include="asset\**" />
+		<AvaloniaResource Include="asset\**"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="11.2.3" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
-		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
+		<PackageReference Include="Avalonia" Version="11.2.3"/>
+		<PackageReference Include="Avalonia.Desktop" Version="11.2.1"/>
+		<PackageReference Include="Avalonia.Controls.TreeDataGrid" Version="11.1.1"/>
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1"/>
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1"/>
 		<PackageReference Include="Avalonia.Diagnostics" Version="11.2.1" >
 			<IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
 			<PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
 		</PackageReference>
 
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+		<PackageReference Include="Dock.Avalonia" Version="11.2.0"/>
+		<PackageReference Include="Dock.Model" Version="11.2.0"/>
+		<PackageReference Include="Dock.Model.Avalonia" Version="11.2.0"/>
+	</ItemGroup>
 
-		<PackageReference Include="Dock.Avalonia" Version="11.2.0" />
-		<PackageReference Include="Dock.Model" Version="11.2.0" />
-		<PackageReference Include="Dock.Model.Avalonia" Version="11.2.0" />
-		<PackageReference Include="Dock.Model.Mvvm" Version="11.2.0" />
+	<ItemGroup>
+	  <Compile Update="src\ui\scenehierarchy.axaml.cs">
+	    <DependentUpon>scenehierarchy.axaml</DependentUpon>
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\ui\console.axaml.cs">
+	    <DependentUpon>console.axaml</DependentUpon>
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\ui\inspector.axaml.cs">
+	    <DependentUpon>inspector.axaml</DependentUpon>
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\ui\contentbrowser.axaml.cs">
+	    <DependentUpon>contentbrowser.axaml</DependentUpon>
+	    <SubType>Code</SubType>
+	  </Compile>
 	</ItemGroup>
 </Project>

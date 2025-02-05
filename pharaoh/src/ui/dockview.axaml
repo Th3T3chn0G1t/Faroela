@@ -7,62 +7,61 @@
         d:DesignWidth="800"
         d:DesignHeight="450"
     
+    xmlns:vm="using:Pharaoh.UI"
+	
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Name="RootControl"
         x:Class="Pharaoh.UI.DockView"
         x:CompileBindings="True">
 
     <DockControl x:Name="Dock" InitializeLayout="True" InitializeFactory="True">
 
         <DockControl.Factory>
-            <Factory />
+            <Factory/>
         </DockControl.Factory>
 
-        <RootDock x:Name="Root" Id="Root" IsCollapsable="False" DefaultDockable="{Binding #MainLayout}">
+        <RootDock x:Name="Root" Id="Root" IsCollapsable="False" DefaultDockable="{Binding #DockBase}">
 
-            <RootDock.Windows>
-            </RootDock.Windows>
+            <ProportionalDock x:Name="DockBase" Id="DockBase" Orientation="Horizontal">
 
-            <ProportionalDock x:Name="MainLayout" Id="MainLayout" Orientation="Horizontal">
-
-                <ToolDock x:Name="LeftPane" Id="LeftPane" Proportion="0.25" Alignment="Left">
-                    <Tool x:Name="SolutionExplorer" Id="SolutionExplorer" Title="Solution Explorer" x:DataType="Tool">
-                        <TextBlock Text="{Binding Title}"/>
+                <ToolDock Proportion="0.25" Alignment="Left">
+                    <Tool x:Name="SceneHierarchy" Id="SceneHierarchy" Title="Scene Hierarchy" x:DataType="Tool">
+                        <vm:SceneHierarchy/>
                     </Tool>
                 </ToolDock>
                 
-                <ProportionalDockSplitter x:Name="LeftSplitter" Id="LeftSplitter" />
-                
-                <ToolDock x:Name="PropertiesPane" Id="PropertiesPane" Proportion="0.3" Alignment="Right">
-                    <Tool x:Name="Properties" Id="Properties" Title="Properties" x:DataType="Tool">
-                        <TextBlock Text="AAAAAAAAAAAAAA" />
-                    </Tool>
-                </ToolDock>
+                <ProportionalDockSplitter/>
 
-                <ProportionalDockSplitter x:Name="MidSplitter" Id="MidSplitter" />
+                <ProportionalDock Orientation="Vertical">
 
-                <ProportionalDock x:Name="RightPane" Id="RightPane" Orientation="Horizontal">
+                    <ProportionalDock Orientation="Horizontal">
 
-                    <!-- Documents Pane -->
+                        <ToolDock>
+                            <Tool x:Name="Viewport" Id="Viewport" Title="Viewport" x:DataType="Tool">
+                                <TextBlock Text="{Binding Title}"/>
+                            </Tool>
+                        </ToolDock>
 
-                    <DocumentDock x:Name="DocumentsPane" Id="DocumentsPane" CanCreateDocument="True" ActiveDockable="Document1">
-                        <DocumentDock.DocumentTemplate>
-                            <DocumentTemplate>
-                                <StackPanel x:DataType="Document">
-                                    <TextBlock Text="Title"/>
-                                    <TextBox Text="{Binding Title}"/>
-                                    <TextBlock Text="Context"/>
-                                    <TextBox Text="{Binding Context}"/>
-                                </StackPanel>
-                            </DocumentTemplate>
-                        </DocumentDock.DocumentTemplate>
-                        <Document x:Name="Document1" Id="Document1" Title="Program.cs" x:DataType="Document">
-                            <TextBlock Text="{Binding Title}"/>
-                        </Document>
-                        <Document x:Name="Document2" Id="Document2" Title="App.axaml" x:DataType="Document">
-                            <TextBlock Text="{Binding Title}"/>
-                        </Document>
-                    </DocumentDock>
+                        <ProportionalDockSplitter/>
 
+                        <ToolDock Proportion="0.25">
+                            <Tool x:Name="Inspector" Id="Inspector" Title="Inspector" x:DataType="Tool">
+                                <vm:Inspector/>
+                            </Tool>
+                        </ToolDock>
+
+                    </ProportionalDock>
+
+                    <ProportionalDockSplitter/>
+
+                    <ToolDock Proportion="0.25">
+                        <Tool x:Name="ContentBrowser" Id="ContentBrowser" Title="Content Browser" x:DataType="Tool">
+                            <vm:ContentBrowser/>
+                        </Tool>
+                        <Tool x:Name="Console" Id="Console" Title="Console" x:DataType="Tool">
+                            <vm:Console/>
+                        </Tool>
+                    </ToolDock>
                 </ProportionalDock>
                 
             </ProportionalDock>

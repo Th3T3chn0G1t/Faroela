@@ -8,7 +8,8 @@
 		RequestedThemeVariant="Default">
 
 	<Application.Styles>
-		<FluentTheme />
-		<DockFluentTheme />
+		<FluentTheme/>
+		<DockFluentTheme/>
+		<StyleInclude Source="avares://Avalonia.Controls.TreeDataGrid/Themes/Fluent.axaml"/>
 	</Application.Styles>
 </Application>

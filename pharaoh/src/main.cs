@@ -18,7 +18,7 @@ public class Startup
 	[STAThread]
 	static void Main(string[] args)
 	{
-        Core.Initialize();
+		Core.Initialize();
 
 		Log.Info("Hello, Pharaoh!");
 

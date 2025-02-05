@@ -1,20 +1,18 @@
-using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-
-using Dock.Avalonia.Controls;
-using Dock.Model;
-using Dock.Model.Avalonia.Controls;
-using Dock.Model.Avalonia.Json;
-using Dock.Model.Core;
 
 namespace Pharaoh.UI;
 
 public partial class DockView : UserControl
 {
-    public DockView()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
+	public DockView()
+	{
+		AvaloniaXamlLoader.Load(this);
+
+		/*var dock = this.FindNameScope()!.Find<ProportionalDock>("DockBase")!;
+
+		ProportionalDock pane = new();
+		AvaloniaXamlLoader.Load(pane);
+		dock.Factory!.AddDockable(dock, pane);*/
+	}
 }

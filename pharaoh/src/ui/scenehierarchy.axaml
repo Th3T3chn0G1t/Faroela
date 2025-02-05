@@ -1,0 +1,18 @@
+<!-- SPDX-License-Identifier: MIT -->
+
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+    
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Name="HierarchyRoot"
+        x:Class="Pharaoh.UI.SceneHierarchy"
+        x:CompileBindings="True">
+
+    <TreeView>
+        TODO:
+    </TreeView>
+</UserControl>

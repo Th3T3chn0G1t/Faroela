@@ -26,7 +26,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(cmake/utilities.cmake)
 
-project(FARO CXX)
+project(Faroela CXX)
 
 # Enable IPO globally if supported.
 include(CheckIPOSupported)
