@@ -2,7 +2,7 @@
 
 add_subdirectory(vendor)
 
-add_executable(sphinx)
+add_executable(sphinx WIN32)
 
 target_compile_features(sphinx PUBLIC cxx_std_23)
 

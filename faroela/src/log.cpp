@@ -9,12 +9,16 @@ namespace faroela {
 		auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file, true);
 		file_sink->set_level(spdlog::level::trace);
 
+#ifdef _WIN32
+		auto debug_sink = std::make_shared<spdlog::sinks::msvc_sink<std::mutex>>(true);
+#endif
+
 		auto create_named_logger = [&] (std::string_view name) {
 			auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 			console->set_level(spdlog::level::trace);
 			console->set_pattern(std::format("[{}] [%^%l%$] %v", name));
 
-			auto logger = std::make_shared<spdlog::logger>(std::string(name), spdlog::sinks_init_list{ console, file_sink });
+			auto logger = std::make_shared<spdlog::logger>(std::string(name), spdlog::sinks_init_list{ console, debug_sink, file_sink });
 			spdlog::register_logger(logger);
 		};
 
