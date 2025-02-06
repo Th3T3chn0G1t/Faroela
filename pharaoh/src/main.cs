@@ -4,7 +4,6 @@ using Avalonia;
 
 using Dock.Model.Avalonia;
 
-using Pharaoh.Native;
 using Pharaoh.UI;
 
 namespace Pharaoh;
@@ -18,13 +17,16 @@ public class Startup
 	[STAThread]
 	static void Main(string[] args)
 	{
-		Core.Initialize();
+		IntPtr ctx;
 
+		unsafe { Faroela.Initialize(&ctx); }
+
+		Log.Context = ctx;
 		Log.Info("Hello, Pharaoh!");
 
 		GC.KeepAlive(typeof(Factory).Assembly);
 		BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
-		Core.Shutdown();
+		unsafe { Faroela.Shutdown(&ctx); }
 	}
 }
