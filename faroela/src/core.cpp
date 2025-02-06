@@ -6,26 +6,38 @@
 #include <tracy/Tracy.hpp>
 
 namespace faroela {
-	result<void> initialize() {
+	// TODO: Distinguish between context-specific startup/teardown and global
+	//		 startup/teardown.
+	result<void> initialize(context*& ctx) {
 		faroela::make_default_loggers("faroela.log");
 
-		const auto& logger = spdlog::get("faroela");
+		if(!(ctx = new(std::nothrow) context)) {
+			return unexpected("failed to allocate context", error_code::out_of_memory);
+		}
+
+		ctx->logger = spdlog::get("faroela");
+		ctx->api_logger = spdlog::get("faroela-api");
+		ctx->client_logger = spdlog::get("client");
+
 		spdlog::stopwatch time;
 
-		logger->info("Initializing...");
+		ctx->logger->info("Initializing...");
 
 		tracy::SetThreadName("faroela_main");
 
-		logger->info("Done. (Took {})", time.elapsed_ms());
+		ctx->logger->info("Done. (Took {})", time.elapsed_ms());
 
 		return {};
 	}
 
-	void shutdown() {
-		const auto& logger = spdlog::get("faroela");
+	void shutdown(context*& ctx) {
 		spdlog::stopwatch time;
 
+		const auto logger = ctx->logger;
 		logger->info("Shutting down...");
+
+		delete ctx;
+		ctx = nullptr;
 
 		logger->info("Done. (Took {})", time.elapsed_ms());
 

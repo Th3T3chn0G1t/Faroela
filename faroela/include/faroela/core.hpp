@@ -10,7 +10,13 @@
 
 #include <faroela/result.hpp>
 
+using namespace std::literals::string_view_literals;
+
 namespace faroela {
-	result<void> initialize();
-	void shutdown();
+	struct context {
+		std::shared_ptr<spdlog::logger> logger, api_logger, client_logger;
+	};
+
+	result<void> initialize(context*&);
+	void shutdown(context*&);
 }

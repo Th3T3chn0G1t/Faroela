@@ -7,13 +7,11 @@
 namespace faroela {
 	void make_default_loggers(const spdlog::filename_t&);
 
-	void client_log(spdlog::level::level_enum, std::string_view);
-
-	void log_error(const error&);
+	void log_error(std::shared_ptr<spdlog::logger>, const error&);
 
 	template<typename T>
-	bool log_result(const result<T>& result) {
-		if(!result) log_error(result.error());
+	bool log_result(std::shared_ptr<spdlog::logger> logger, const result<T>& result) {
+		if(!result) log_error(logger, result.error());
 
 		return result.has_value();
 	}

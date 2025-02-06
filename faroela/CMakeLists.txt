@@ -10,12 +10,15 @@ set(
 		FAROELA_SOURCES
 		api.cpp
 		core.cpp
-		log.cpp)
+		hid.cpp
+		log.cpp
+		result.cpp)
 
 set(
 		FAROELA_HEADERS
 		core.hpp
 		formatters.hpp
+		hid.hpp
 		log.hpp
 		result.hpp)
 

@@ -19,16 +19,11 @@ namespace faroela {
 		};
 
 		create_named_logger("faroela");
+		create_named_logger("faroela-api");
 		create_named_logger("client");
 	}
 
-	void client_log(spdlog::level::level_enum level, std::string_view message) {
-		spdlog::get("client")->log(level, message);
-	}
-
-	void log_error(const error& error) {
-		const auto& logger = spdlog::get("faroela");
-
+	void log_error(std::shared_ptr<spdlog::logger> logger, const error& error) {
 		logger->error("{} in {}: {}", magic_enum::enum_name(error.code), error.location, error.message);
 	}
 }

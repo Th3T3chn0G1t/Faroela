@@ -2,18 +2,22 @@
 
 #pragma once
 
-#ifdef _WIN32
-# define FAROELA_IMPORT __declspec(dllimport)
-#else
-# define FAROELA_IMPORT
+#ifndef FAROELA_EXPORT
+# define FAROELA_EXPORT
 #endif
 
 // TODO: Would it be wise to have this and a C# equivalent be generated from an API description instead? Would also
 //		 Allow for swapping out the intermediate mode of communication (IPC, net etc.).
 extern "C" {
+	namespace faroela {
+		struct context;
+	}
+
 	namespace faroela_api {
-		FAROELA_IMPORT bool faroela_initialize(void);
-		FAROELA_IMPORT void faroela_shutdown(void);
+		using context = faroela::context;
+
+		FAROELA_EXPORT bool faroela_initialize(context**);
+		FAROELA_EXPORT void faroela_shutdown(context**);
 
 		enum verbosity : int {
 			trace = 0,
@@ -24,7 +28,7 @@ extern "C" {
 			critical = 5
 		};
 
-		FAROELA_IMPORT void faroela_log(verbosity, const char*);
+		FAROELA_EXPORT void faroela_log(context*, verbosity, const char*);
 
 		namespace hid {
 			enum port : int {
@@ -200,8 +204,8 @@ extern "C" {
 
 		// Signal a HID as having been connected or disconnected. Disconnection must refer to a
 		// previously-connected port.
-		FAROELA_IMPORT void faroela_hid_status(hid::port, bool);
-		FAROELA_IMPORT void faroela_hid_button_event(hid::port, hid::button, bool);
-		FAROELA_IMPORT void faroela_hid_axis_event(hid::port, hid::axis, float);
+		FAROELA_EXPORT void faroela_hid_status(context*, hid::port, bool);
+		FAROELA_EXPORT void faroela_hid_button_event(context*, hid::port, hid::button, bool);
+		FAROELA_EXPORT void faroela_hid_axis_event(context*, hid::port, hid::axis, float);
 	}
 }
