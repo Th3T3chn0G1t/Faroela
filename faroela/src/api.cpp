@@ -7,25 +7,29 @@
 
 extern "C" {
 	namespace faroela_api {
-		FAROELA_EXPORT bool faroela_initialize(faroela::context** ctx) {
-			return faroela::log_result((*ctx)->api_logger, faroela::initialize(*ctx));
+		FAROELA_EXPORT link_bool faroela_initialize(faroela::context** ctx) {
+			const auto result = faroela::context::initialize();
+
+			*ctx = result ? *result : nullptr;
+
+			return result.has_value();
 		}
 
 		FAROELA_EXPORT void faroela_shutdown(faroela::context** ctx) {
-			faroela::shutdown(*ctx);
+			faroela::context::shutdown(*ctx);
 		}
 
 		FAROELA_EXPORT void faroela_log(faroela::context* ctx, verbosity level, const char* message) {
 			ctx->client_logger->log(spdlog::level::level_enum(level), std::string_view(message));
 		}
 
-		FAROELA_EXPORT void faroela_hid_status(faroela::context* ctx, hid::port port, bool connected) {
+		FAROELA_EXPORT void faroela_hid_status(faroela::context* ctx, hid::port port, link_bool connected) {
 			(void) ctx;
 			(void) port;
 			(void) connected;
 		}
 
-		FAROELA_EXPORT void faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, bool pressed) {
+		FAROELA_EXPORT void faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, link_bool pressed) {
 			(void) ctx;
 			(void) port;
 			(void) button;

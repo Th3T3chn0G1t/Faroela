@@ -2,7 +2,14 @@
 
 #pragma once
 
+#ifdef _WIN32
+# define FAROELA_EXPORT __declspec(dllexport)
+#else
+# define FAROELA_EXPORT [[gnu::visibility("default")]]
+#endif
+
 #include <algorithm>
+#include <array>
 #include <expected>
 #include <format>
 #include <memory>

@@ -2,21 +2,19 @@
 
 #pragma once
 
-#ifdef _WIN32
-# define FAROELA_EXPORT __declspec(dllexport)
-#else
-# define FAROELA_EXPORT [[gnu::visibility("default")]]
-#endif
-
 #include <faroela/result.hpp>
-
-using namespace std::literals::string_view_literals;
+#include <faroela/hid.hpp>
 
 namespace faroela {
-	struct context {
+	class context {
+	public:
 		std::shared_ptr<spdlog::logger> logger, api_logger, client_logger;
-	};
 
-	result<void> initialize(context*&);
-	void shutdown(context*&);
+	private:
+		std::array<std::optional<hid_state>, faroela_api::hid::port_max> hid_states;
+
+	public:
+		static result<context*> initialize();
+		static void shutdown(context*&);
+	};
 }

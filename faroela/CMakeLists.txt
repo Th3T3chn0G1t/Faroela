@@ -26,7 +26,16 @@ list(TRANSFORM FAROELA_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
 list(TRANSFORM FAROELA_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)
 
 target_sources(faroela PRIVATE ${FAROELA_SOURCES} ${FAROELA_HEADERS})
-target_sources(faroela PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/faroela-api/faroela.hpp)
+
+# TODO: Make faroela-api an interface target.
+set(
+		FAROELA_API_HEADERS
+		faroela.hpp
+		types.hpp)
+
+list(TRANSFORM FAROELA_API_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela-api/)
+
+target_sources(faroela PUBLIC ${FAROELA_API_HEADERS})
 
 target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/faroela/pch.hpp)
 

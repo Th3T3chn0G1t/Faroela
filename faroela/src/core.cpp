@@ -8,7 +8,9 @@
 namespace faroela {
 	// TODO: Distinguish between context-specific startup/teardown and global
 	//		 startup/teardown.
-	result<void> initialize(context*& ctx) {
+	result<context*> context::initialize() {
+		context* ctx;
+
 		faroela::make_default_loggers("faroela.log");
 
 		if(!(ctx = new(std::nothrow) context)) {
@@ -27,10 +29,10 @@ namespace faroela {
 
 		ctx->logger->info("Done. (Took {})", time.elapsed_ms());
 
-		return {};
+		return ctx;
 	}
 
-	void shutdown(context*& ctx) {
+	void context::shutdown(context*& ctx) {
 		spdlog::stopwatch time;
 
 		const auto logger = ctx->logger;
