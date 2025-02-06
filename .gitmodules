@@ -11,9 +11,15 @@
 	url = https://github.com/wolfpld/tracy
 	shallow = true
 	ignore = dirty
-[submodule "sphinx/vendor/glfw"]
-	path = sphinx/vendor/glfw
-	url = https://github.com/glfw/glfw
+
 [submodule "faroela/vendor/magic_enum"]
 	path = faroela/vendor/magic_enum
 	url = https://github.com/Neargye/magic_enum
+	shallow = true
+	ignore = dirty
+
+[submodule "sphinx/vendor/glfw"]
+	path = sphinx/vendor/glfw
+	url = https://github.com/glfw/glfw
+	shallow = true
+	ignore = dirty
