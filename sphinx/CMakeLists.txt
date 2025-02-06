@@ -7,21 +7,21 @@ add_executable(sphinx WIN32)
 target_compile_features(sphinx PUBLIC cxx_std_23)
 
 set(
-		SPHX_SOURCES
+		SPHINX_SOURCES
 		main.cpp
 		screen.cpp
 		hid.cpp)
 
 set(
-		SPHX_HEADERS
+		SPHINX_HEADERS
 		screen.hpp
 		hid.hpp)
 
-list(TRANSFORM SPHX_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
-list(TRANSFORM SPHX_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/)
+list(TRANSFORM SPHINX_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
+list(TRANSFORM SPHINX_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/)
 
-target_sources(sphinx PRIVATE ${SPHX_SOURCES})
-target_sources(sphinx PUBLIC ${SPHX_HEADERS})
+target_sources(sphinx PRIVATE ${SPHINX_SOURCES})
+target_sources(sphinx PUBLIC ${SPHINX_HEADERS})
 
 target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/pch.hpp)
 
