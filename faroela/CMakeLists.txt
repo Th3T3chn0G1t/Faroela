@@ -20,10 +20,15 @@ set(
 		formatters.hpp
 		hid.hpp
 		log.hpp
+		platform.hpp
 		result.hpp)
 
 list(TRANSFORM FAROELA_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
 list(TRANSFORM FAROELA_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)
+
+if(WIN32)
+	include(src/windows/CMakeLists.txt)
+endif()
 
 target_sources(faroela PRIVATE ${FAROELA_SOURCES} ${FAROELA_HEADERS})
 

@@ -2,6 +2,7 @@
 
 #include <faroela/core.hpp>
 #include <faroela/log.hpp>
+#include <faroela/platform.hpp>
 
 #include <tracy/Tracy.hpp>
 
@@ -14,12 +15,15 @@ namespace faroela {
 		faroela::make_default_loggers("faroela.log");
 
 		if(!(ctx = new(std::nothrow) context)) {
-			return unexpected("failed to allocate context", error_code::out_of_memory);
+			return unexpect("failed to allocate context", error_code::out_of_memory);
 		}
 
 		ctx->logger = spdlog::get("faroela");
 		ctx->api_logger = spdlog::get("faroela-api");
 		ctx->client_logger = spdlog::get("client");
+
+		auto result = initialize_platform(*ctx);
+		if(!result) return forward(result);
 
 		spdlog::stopwatch time;
 
