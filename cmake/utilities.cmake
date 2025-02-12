@@ -61,6 +61,7 @@ function(cxx_default_diagnostics TARGET)
 			/wd4820 # Padding
 			/wd4710 # Function was not inlined
 			/wd5045 # Spectre mitigations
+			/wd4514 # Unreferenced inline function has been removed
 			/wd4711 # Function selected for automatic inlining
 			/wd4706 # Assignment inside conditional expression (even with double paren)
 			/wd4061 # Non-explicitly handled enum value (Doesn't count `default:')

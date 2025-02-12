@@ -12,14 +12,14 @@
 //		 Allow for swapping out the intermediate mode of communication (IPC, net etc.).
 extern "C" {
 	namespace faroela {
-		struct context;
+		class context;
 	}
 
 	namespace faroela_api {
 		using link_bool = unsigned;
 		using context = faroela::context;
 
-		FAROELA_EXPORT link_bool faroela_initialize(context**);
+		FAROELA_EXPORT link_bool faroela_initialize(context**, int, char**);
 		FAROELA_EXPORT void faroela_shutdown(context**);
 
 		FAROELA_EXPORT void faroela_log(context*, verbosity, const char*);

@@ -23,7 +23,7 @@ list(TRANSFORM SPHINX_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/)
 target_sources(sphinx PRIVATE ${SPHINX_SOURCES})
 target_sources(sphinx PUBLIC ${SPHINX_HEADERS})
 
-target_precompile_headers(faroela PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/pch.hpp)
+target_precompile_headers(sphinx PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/pch.hpp)
 
 target_include_directories(sphinx PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/)
 

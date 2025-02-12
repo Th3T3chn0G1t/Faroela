@@ -26,8 +26,9 @@ namespace faroela {
 		return unexpected(error{ code, location, std::string(message) });
 	}
 
-	constexpr inline unexpected system_error(int code, std::source_location location = std::source_location::current()) {
-		std::error_code sys(code, std::system_category());
+	template<typename T>
+	unexpected system_error(T code, std::source_location location = std::source_location::current()) {
+		std::error_code sys(static_cast<int>(code), std::system_category());
 		// TODO: Offer `strerrorname_np` where available to convert code name.
 		return unexpect(sys.message(), error_code::unknown_error, location);
 	}

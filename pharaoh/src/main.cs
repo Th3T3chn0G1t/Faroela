@@ -19,7 +19,8 @@ public class Startup
 	{
 		IntPtr ctx;
 
-		unsafe { Faroela.Initialize(&ctx); }
+		// TODO: Convert `args` to `argc/v`.
+		unsafe { Faroela.Initialize(&ctx, 0, null); }
 
 		Log.Context = ctx;
 		Log.Info("Hello, Pharaoh!");

@@ -9,7 +9,7 @@ public unsafe partial class Faroela
 {
 	[LibraryImport("faroela", EntryPoint = "faroela_initialize", StringMarshalling = StringMarshalling.Utf8)]
 	[return: MarshalAs(UnmanagedType.Bool)]
-	public static partial bool Initialize(IntPtr* ctx);
+	public static partial bool Initialize(IntPtr* ctx, int argc, char** argv);
 
 	[LibraryImport("faroela", EntryPoint = "faroela_shutdown", StringMarshalling = StringMarshalling.Utf8)]
 	public static partial void Shutdown(IntPtr* ctx);
