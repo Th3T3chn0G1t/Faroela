@@ -15,6 +15,7 @@
 #include <memory>
 #include <source_location>
 #include <string_view>
+#include <system_error>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>

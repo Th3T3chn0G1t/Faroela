@@ -27,7 +27,7 @@ namespace faroela {
 		create_named_logger("client");
 	}
 
-	void log_error(std::shared_ptr<spdlog::logger> logger, const error& error) {
-		logger->error("{} in {}: {}", magic_enum::enum_name(error.code), error.location, error.message);
+	void log_error(logger log, const error& error) {
+		log->error("{} in {}: {}", magic_enum::enum_name(error.code), error.location, error.message);
 	}
 }
