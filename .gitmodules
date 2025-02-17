@@ -29,3 +29,9 @@
 	url = https://github.com/libuv/libuv
 	shallow = true
 	ignore = dirty
+
+[submodule "faroela/vendor/unordered_dense"]
+	path = faroela/vendor/unordered_dense
+	url = https://github.com/martinus/unordered_dense
+	shallow = true
+	ignore = dirty
