@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace faroela {
+namespace faroela::common {
 	// TODO: Should create a `std::error_code`/`category` adapter.
 	enum class error_code {
 		unknown_error,

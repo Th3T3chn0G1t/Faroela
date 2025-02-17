@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-#include <faroela/result.hpp>
+#include <faroela/common/result.hpp>
 
 namespace faroela {
 }

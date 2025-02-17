@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace faroela_api {
+namespace faroela::api {
 	enum verbosity : int {
 		trace = 0,
 		debug = 1,

@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include <faroela/result.hpp>
 #include <faroela/hid.hpp>
+
+#include <faroela/common/result.hpp>
 
 namespace faroela {
 	class context {
@@ -11,7 +12,7 @@ namespace faroela {
 		std::shared_ptr<spdlog::logger> logger, api_logger, client_logger;
 
 	private:
-		std::array<std::optional<hid_state>, faroela_api::hid::port_max> hid_states;
+		std::array<std::optional<hid_state>, faroela::api::hid::port_max> hid_states;
 
 	public:
 		static result<context*> initialize();

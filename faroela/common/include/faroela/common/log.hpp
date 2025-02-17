@@ -2,16 +2,21 @@
 
 #pragma once
 
-#include <faroela/result.hpp>
+#include <faroela/common/result.hpp>
+#include <faroela/common/formatters.hpp>
 
-namespace faroela {
+namespace faroela::common {
 	using logger = std::shared_ptr<spdlog::logger>;
 
-	void make_default_loggers(const spdlog::filename_t&);
+	void register_default_loggers(const spdlog::filename_t&);
 
 	void log_error(logger, const error&);
 
 	// TODO: Just define custom formatter for error/result instead of having these bespoke functions.
+	inline void log_error(logger log, const error& error) {
+		log->error("{} in {}: {}", magic_enum::enum_name(error.code), error.location, error.message);
+	}
+
 	inline void log_error(logger log, const unexpected& error) {
 		log_error(log, error.error());
 	}

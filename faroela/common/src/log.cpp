@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-#include <faroela/core.hpp>
-#include <faroela/log.hpp>
-#include <faroela/formatters.hpp>
+#include <faroela/common/log.hpp>
+#include <faroela/common/formatters.hpp>
 
-namespace faroela {
-	void make_default_loggers(const spdlog::filename_t& file) {
+namespace faroela::common {
+	using common::logger;
+
+	void register_default_loggers(const spdlog::filename_t& file) {
 		auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file, true);
 		file_sink->set_level(spdlog::level::trace);
 
@@ -25,9 +26,5 @@ namespace faroela {
 		create_named_logger("faroela");
 		create_named_logger("faroela-api");
 		create_named_logger("client");
-	}
-
-	void log_error(logger log, const error& error) {
-		log->error("{} in {}: {}", magic_enum::enum_name(error.code), error.location, error.message);
 	}
 }

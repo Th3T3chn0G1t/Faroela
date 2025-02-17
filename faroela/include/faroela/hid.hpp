@@ -2,16 +2,16 @@
 
 #pragma once
 
-#include <faroela-api/types.hpp>
+#include <faroela/api/types.hpp>
 
 namespace faroela {
 	class hid_state {
 	private:
-		std::array<bool, faroela_api::hid::button_max> buttons{};
-		std::array<float, faroela_api::hid::axis_max> axes{};
+		std::array<bool, faroela::api::hid::button_max> buttons{};
+		std::array<float, faroela::api::hid::axis_max> axes{};
 
 	public:
-		void set_button(faroela_api::hid::button, bool);
-		void set_axis(faroela_api::hid::axis, float);
+		void set_button(faroela::api::hid::button, bool);
+		void set_axis(faroela::api::hid::axis, float);
 	};
 }

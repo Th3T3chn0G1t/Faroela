@@ -6,7 +6,7 @@
 # define FAROELA_EXPORT
 #endif
 
-#include <faroela-api/types.hpp>
+#include <faroela/api/types.hpp>
 
 // TODO: Would it be wise to have this and a C# equivalent be generated from an API description instead? Would also
 //		 Allow for swapping out the intermediate mode of communication (IPC, net etc.).
@@ -15,7 +15,7 @@ extern "C" {
 		class context;
 	}
 
-	namespace faroela_api {
+	namespace faroela::api {
 		using link_bool = unsigned;
 		using context = faroela::context;
 

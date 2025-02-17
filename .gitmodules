@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 [submodule "faroela/vendor/spdlog"]
-	path = faroela/vendor/spdlog
+	path = faroela/common/vendor/spdlog
 	url = https://github.com/gabime/spdlog
 	shallow = true
 	ignore = dirty
@@ -13,7 +13,7 @@
 	ignore = dirty
 
 [submodule "faroela/vendor/magic_enum"]
-	path = faroela/vendor/magic_enum
+	path = faroela/common/vendor/magic_enum
 	url = https://github.com/Neargye/magic_enum
 	shallow = true
 	ignore = dirty

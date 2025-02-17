@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <faroela/result.hpp>
+#include <faroela/common/result.hpp>
 
 namespace faroela {
 	class context;

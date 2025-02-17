@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 #include <faroela/core.hpp>
-#include <faroela/log.hpp>
 #include <faroela/platform.hpp>
+
+#include <faroela/common/log.hpp>
 
 #include <tracy/Tracy.hpp>
 
@@ -12,7 +13,7 @@ namespace faroela {
 	result<context*> context::initialize() {
 		context* ctx;
 
-		faroela::make_default_loggers("faroela.log");
+		faroela::common::register_default_loggers("faroela.log");
 
 		if(!(ctx = new(std::nothrow) context)) {
 			return unexpect("failed to allocate context", error_code::out_of_memory);

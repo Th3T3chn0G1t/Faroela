@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
 #include <faroela/core.hpp>
-#include <faroela/log.hpp>
 
-#include <faroela-api/faroela.hpp>
+#include <faroela/common/log.hpp>
+
+#include <faroela/api/faroela.hpp>
 
 extern "C" {
-	namespace faroela_api {
+	namespace faroela::api {
 		FAROELA_EXPORT link_bool faroela_initialize(faroela::context** ctx, [[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 			const auto result = faroela::context::initialize();
 
