@@ -39,6 +39,6 @@ set_target_properties(
 		CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries(faroela PUBLIC faroela-common faroela-api)
-target_link_libraries(faroela PRIVATE spdlog Tracy::TracyClient magic_enum)
+target_link_libraries(faroela PRIVATE Tracy::TracyClient uv)
 
 cxx_default_diagnostics(faroela)

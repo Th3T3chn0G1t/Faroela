@@ -23,3 +23,9 @@
 	url = https://github.com/glfw/glfw
 	shallow = true
 	ignore = dirty
+
+[submodule "faroela/vendor/libuv"]
+	path = faroela/vendor/libuv
+	url = https://github.com/libuv/libuv
+	shallow = true
+	ignore = dirty
