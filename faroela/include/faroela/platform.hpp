@@ -7,5 +7,6 @@
 namespace faroela {
 	class context;
 
+	[[nodiscard]]
 	result<void> initialize_platform(context&);
 }

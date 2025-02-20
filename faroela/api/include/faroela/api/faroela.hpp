@@ -26,8 +26,8 @@ extern "C" {
 
 		// Signal a HID as having been connected or disconnected. Disconnection must refer to a
 		// previously-connected port.
-		FAROELA_EXPORT void faroela_hid_status(context*, hid::port, link_bool);
-		FAROELA_EXPORT void faroela_hid_button_event(context*, hid::port, hid::button, link_bool);
-		FAROELA_EXPORT void faroela_hid_axis_event(context*, hid::port, hid::axis, float);
+		FAROELA_EXPORT link_bool faroela_hid_status(context*, hid::port, link_bool);
+		FAROELA_EXPORT link_bool faroela_hid_button_event(context*, hid::port, hid::button, link_bool);
+		FAROELA_EXPORT link_bool faroela_hid_axis_event(context*, hid::port, hid::axis, float);
 	}
 }

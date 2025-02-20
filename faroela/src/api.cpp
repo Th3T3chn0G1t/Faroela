@@ -8,6 +8,8 @@
 
 extern "C" {
 	namespace faroela::api {
+		// TODO: Make common root API error state/log handover.
+
 		FAROELA_EXPORT link_bool faroela_initialize(faroela::context** ctx, [[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 			const auto result = faroela::context::initialize();
 
@@ -24,24 +26,22 @@ extern "C" {
 			ctx->client_logger->log(spdlog::level::level_enum(level), std::string_view(message));
 		}
 
-		FAROELA_EXPORT void faroela_hid_status(faroela::context* ctx, hid::port port, link_bool connected) {
-			(void) ctx;
-			(void) port;
-			(void) connected;
+		FAROELA_EXPORT link_bool faroela_hid_status(faroela::context* ctx, hid::port port, link_bool connected) {
+			const auto result = ctx->submit<hid_event>("hid", hid_status_event{ port, !!connected });
+
+			return result.has_value();
 		}
 
-		FAROELA_EXPORT void faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, link_bool pressed) {
-			(void) ctx;
-			(void) port;
-			(void) button;
-			(void) pressed;
+		FAROELA_EXPORT link_bool faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, link_bool pressed) {
+			const auto result = ctx->submit<hid_event>("hid", hid_button_event{ port, button, !!pressed });
+
+			return result.has_value();
 		}
 
-		FAROELA_EXPORT void faroela_hid_axis_event(faroela::context* ctx, hid::port port, hid::axis axis, float value) {
-			(void) ctx;
-			(void) port;
-			(void) axis;
-			(void) value;
+		FAROELA_EXPORT link_bool faroela_hid_axis_event(faroela::context* ctx, hid::port port, hid::axis axis, float value) {
+			const auto result = ctx->submit<hid_event>("hid", hid_axis_event{ port, axis, value });
+
+			return result.has_value();
 		}
 	}
 }

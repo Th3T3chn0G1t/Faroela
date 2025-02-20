@@ -10,3 +10,5 @@ set(TRACY_SYMBOL_OFFLINE_RESOLVE OFF)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tracy SYSTEM)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libuv SYSTEM)
+
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/unordered_dense SYSTEM)
