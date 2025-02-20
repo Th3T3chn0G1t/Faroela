@@ -10,12 +10,15 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <expected>
 #include <format>
+#include <functional>
 #include <memory>
 #include <source_location>
 #include <string_view>
 #include <system_error>
+#include <variant>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>

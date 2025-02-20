@@ -21,8 +21,8 @@ namespace faroela::common {
 		log_error(log, error.error());
 	}
 
-	template<typename T>
-	bool log_result(logger log, const result<T>& result) {
+	template<typename expected>
+	bool log_result(logger log, const result<expected>& result) {
 		if(!result) log_error(log, result.error());
 
 		return result.has_value();
