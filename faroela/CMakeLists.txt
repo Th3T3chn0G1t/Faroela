@@ -18,6 +18,7 @@ set(
 set(
 		FAROELA_HEADERS
 		core.hpp
+		delegate.hpp
 		hid.hpp
 		platform.hpp)
 
@@ -39,6 +40,6 @@ set_target_properties(
 		CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries(faroela PUBLIC faroela-common faroela-api)
-target_link_libraries(faroela PRIVATE Tracy::TracyClient libuv::libuv unordered_dense)
+target_link_libraries(faroela PRIVATE Tracy::TracyClient libuv::libuv unordered_dense function-ref)
 
 cxx_default_diagnostics(faroela)

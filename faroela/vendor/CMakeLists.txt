@@ -12,3 +12,6 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tracy SYSTEM)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/libuv SYSTEM)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/unordered_dense SYSTEM)
+
+set(FUNCTION_REF_ENABLE_TESTS OFF)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/function_ref SYSTEM)

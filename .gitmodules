@@ -35,3 +35,6 @@
 	url = https://github.com/martinus/unordered_dense
 	shallow = true
 	ignore = dirty
+[submodule "faroela/vendor/function_ref"]
+	path = faroela/vendor/function_ref
+	url = https://github.com/TartanLlama/function_ref
