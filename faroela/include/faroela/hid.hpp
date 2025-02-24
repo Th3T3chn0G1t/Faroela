@@ -2,9 +2,16 @@
 
 #pragma once
 
+#include <faroela/delegate.hpp>
+
 #include <faroela/api/types.hpp>
 
 namespace faroela {
+	struct hid_status_event {
+		faroela::api::hid::port port;
+		bool connected;
+	};
+
 	struct hid_button_event {
 		faroela::api::hid::port port;
 		faroela::api::hid::button button;
@@ -17,21 +24,22 @@ namespace faroela {
 		float value;
 	};
 
-	struct hid_status_event {
-		faroela::api::hid::port port;
-		bool connected;
-	};
-
-	using hid_event = std::variant<hid_button_event, hid_axis_event, hid_status_event>;
-
 	class hid_state {
 	private:
 		std::array<bool, faroela::api::hid::button_max> buttons{};
 		std::array<float, faroela::api::hid::axis_max> axes{};
 
 	public:
-		// TODO: Should hid_state just consume hid_event directly?
 		void set_button(faroela::api::hid::button, bool);
 		void set_axis(faroela::api::hid::axis, float);
+	};
+
+	class hid_system {
+	public:
+		std::array<std::optional<hid_state>, faroela::api::hid::port_max> hid_states;
+
+		std::optional<delegate<hid_status_event>::callable> status_callback;
+		std::optional<delegate<hid_button_event>::callable> button_callback;
+		std::optional<delegate<hid_axis_event>::callable> axis_callback;
 	};
 }

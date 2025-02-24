@@ -11,10 +11,12 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <concepts>
 #include <expected>
 #include <format>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <source_location>
 #include <string_view>
 #include <system_error>

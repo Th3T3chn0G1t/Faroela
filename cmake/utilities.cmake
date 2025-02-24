@@ -65,5 +65,7 @@ function(cxx_default_diagnostics TARGET)
 			/wd4711 # Function selected for automatic inlining
 			/wd4706 # Assignment inside conditional expression (even with double paren)
 			/wd4061 # Non-explicitly handled enum value (Doesn't count `default:')
+			/wd4623 # Default constructor was implicitly defined as deleted
+			/wd4868 # Compiler may not enforce left-to-right evaluation order in braced initializer list
 			/wd4127) # Conditional expression is constant (Even if block contains a `break')
 endfunction()

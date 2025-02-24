@@ -3,6 +3,7 @@
 #pragma once
 
 #include <faroela/hid.hpp>
+#include <faroela/delegate.hpp>
 
 #include <faroela/common/result.hpp>
 
@@ -21,7 +22,8 @@ namespace faroela {
 		//		 revisit this if we allow the client to register their own event systems.
 		unordered_dense::map<std::string_view, loop_ptr> event_systems;
 
-		std::array<std::optional<hid_state>, faroela::api::hid::port_max> hid_states;
+	public:
+		hid_system hid;
 
 	public:
 		[[nodiscard]]
@@ -32,20 +34,17 @@ namespace faroela {
 		[[nodiscard]]
 		result<loop_ref> get_system(std::string_view);
 
+		static void async_callback_decl(uv_async_t*) noexcept;
+		using async_callback = decltype(async_callback_decl)*;
+
 		[[nodiscard]]
-		result<void> submit(std::string_view, void*);
+		result<void> submit(std::string_view, void*, async_callback);
 
 	public:
-		template<typename event_type, typename... args>
+		template<typename event_type>
 		[[nodiscard]]
-		result<void> submit(std::string_view system, args&&... v) {
-			// TODO: Should event data (both here and underlying submit call) be pulled from a pool rather than new'd?
-			event_type* data = new(std::nothrow) event_type(std::forward<args>(v)...);
-			if(!data) [[unlikely]] {
-				return unexpect("failed to allocate event data", error_code::out_of_memory);
-			}
-
-			return forward(submit(system, data));
+		result<void> submit(std::string_view system, delegate<event_type>& pass) {
+			return submit(system, &pass, delegate<event_type>::call);
 		}
 
 		[[nodiscard]]

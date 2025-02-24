@@ -37,10 +37,23 @@ namespace faroela {
 
 		ctx->logger->info("Initializing...");
 
+		// TODO: Move out HID system initialization.
 		result = ctx->add_event_system("hid");
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}
+
+		ctx->hid.status_callback = [&](auto event) {
+			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
+		};
+
+		ctx->hid.button_callback = [&](auto event) {
+			ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
+		};
+
+		ctx->hid.axis_callback = [&](auto event) {
+			ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
+		};
 
 		tracy::SetThreadName("faroela_main");
 
@@ -57,8 +70,14 @@ namespace faroela {
 
 		for(auto& loop : ctx->event_systems) {
 			// TODO: Do these loops need to be flushed?
+		//again:
+			// TODO: See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
 			int libuv_result = uv_loop_close(loop.second.get());
 			if(libuv_result < 0) [[unlikely]] {
+				// TODO: Pump and retry on failure.
+				/*if(libuv_result == UV_EBUSY) {
+					goto again;
+				}*/
 				log_error(logger, libuv_error(libuv_result));
 			}
 		}
@@ -83,20 +102,22 @@ namespace faroela {
 		return loop_ref(it->second);
 	}
 
-	result<void> context::submit(std::string_view system, void* data) {
+	result<void> context::submit(std::string_view system, void* data, async_callback callback) {
 		auto result = get_system(system);
 
 		if(!result) {
 			return forward(result);
 		}
 
+		// TODO: Should event data be pulled from a pool rather than new'd?
 		uv_async_t* async = new(std::nothrow) uv_async_t;
 		if(!async) {
 			return unexpect("failed to allocate event async", error_code::out_of_memory);
 		}
 
-		// TODO: Should we allow a callback here?
-		int libuv_result = uv_async_init(result->get().get(), async, nullptr);
+		// TODO: Disable exceptions globally and check all std interfaces. Should we clone with a libc++ we statically
+		//		 link so we can disable it from the root?
+		int libuv_result = uv_async_init(result->get().get(), async, callback);
 		if(libuv_result < 0) [[unlikely]] {
 			delete async;
 			return libuv_error(libuv_result);
