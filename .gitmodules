@@ -38,3 +38,6 @@
 [submodule "faroela/vendor/function_ref"]
 	path = faroela/vendor/function_ref
 	url = https://github.com/TartanLlama/function_ref
+[submodule "faroela/common/vendor/eternal"]
+	path = faroela/common/vendor/eternal
+	url = https://github.com/mapbox/eternal
