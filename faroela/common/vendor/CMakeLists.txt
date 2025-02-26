@@ -8,3 +8,5 @@ set(SPDLOG_BUILD_PIC ON)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/spdlog SYSTEM)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/magic_enum SYSTEM)
+
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/helper/eternal SYSTEM)
