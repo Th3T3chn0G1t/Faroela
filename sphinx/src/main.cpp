@@ -38,7 +38,9 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+#ifdef _WIN32
 [[maybe_unused]]
 int WinMain(void*, void*, char*, int) {
 	return main(__argc, __argv);
 }
+#endif
