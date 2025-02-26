@@ -19,6 +19,8 @@ extern "C" {
 		using link_bool = unsigned;
 		using context = faroela::context;
 
+		// NOTE: The client application expects to own the main thread -- so the engine must spawn its own workers in
+		//		 here if the system isn't explicitly pumped.
 		FAROELA_EXPORT link_bool faroela_initialize(context**, int, char**);
 		FAROELA_EXPORT void faroela_shutdown(context**);
 

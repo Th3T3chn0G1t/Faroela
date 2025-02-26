@@ -8,9 +8,9 @@ namespace faroela {
 	template<typename event_type>
 	class delegate {
 	public:
-		// TODO: Once std::function_ref becomes more widespread replace all tl::function_ref.
+		// TODO: Once std::function_ref becomes more widespread, replace all tl::function_ref.
 		// TODO: Should this signature return a result?
-		using callable = std::function<void(event_type&)>;
+		using callable = tl::function_ref<void(event_type&)>;
 
 	private:
 		std::optional<callable> callback;
@@ -23,7 +23,7 @@ namespace faroela {
 		template<typename... args>
 		[[nodiscard]]
 		static result<delegate<event_type>*> create(callable callback, args&&... v) {
-			// TODO: Could this be pulled from a pool?
+			// TODO: Could this be pulled from a pool? May be better to do so from the ctx create wrapper.
 			auto p = new(std::nothrow) delegate<event_type>{ callback, event_type{ std::forward<args>(v)... } };
 
 			if(!p) {

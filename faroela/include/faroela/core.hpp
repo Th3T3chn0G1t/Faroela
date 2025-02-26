@@ -47,6 +47,18 @@ namespace faroela {
 			return submit(system, &pass, delegate<event_type>::call);
 		}
 
+		template<typename event_type, typename... args>
+		requires common::is_list_constructible<event_type, args...>
+		[[nodiscard]]
+		result<void> submit(std::string_view system, delegate<event_type>::callable callable, args&&... v) {
+			const auto instance = delegate<event_type>::create(callable, std::forward<args>(v)...);
+			if(!instance) [[unlikely]] {
+				return forward(instance);
+			}
+
+			return submit(system, **instance);
+		}
+
 		[[nodiscard]]
 		result<void> add_event_system(std::string_view);
 

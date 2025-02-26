@@ -28,35 +28,19 @@ extern "C" {
 		}
 
 		FAROELA_EXPORT link_bool faroela_hid_status(faroela::context* ctx, hid::port port, link_bool connected) {
-			// TODO: Wrap up this create+dispatch in a context method.
-			const auto instance = faroela::delegate<faroela::hid_status_event>::create(ctx->hid.status_callback.value(), port, !!connected);
-			if(!instance) [[unlikely]] {
-				return false;
-			}
-
-			const auto result = ctx->submit("hid", **instance);
+			const auto result = ctx->submit<faroela::hid_status_event>("hid", ctx->hid.status_callback.value(), port, !!connected);
 
 			return result.has_value();
 		}
 
 		FAROELA_EXPORT link_bool faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, link_bool pressed) {
-			const auto instance = faroela::delegate<faroela::hid_button_event>::create(ctx->hid.button_callback.value(), port, button, !!pressed);
-			if(!instance) [[unlikely]] {
-				return false;
-			}
-
-			const auto result = ctx->submit("hid", **instance);
+			const auto result = ctx->submit<faroela::hid_button_event>("hid", ctx->hid.button_callback.value(), port, button, !!pressed);
 
 			return result.has_value();
 		}
 
 		FAROELA_EXPORT link_bool faroela_hid_axis_event(faroela::context* ctx, hid::port port, hid::axis axis, float value) {
-			const auto instance = faroela::delegate<faroela::hid_axis_event>::create(ctx->hid.axis_callback.value(), port, axis, value);
-			if(!instance) [[unlikely]] {
-				return false;
-			}
-
-			const auto result = ctx->submit("hid", **instance);
+			const auto result = ctx->submit<faroela::hid_axis_event>("hid", ctx->hid.axis_callback.value(), port, axis, value);
 
 			return result.has_value();
 		}
