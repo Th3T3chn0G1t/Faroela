@@ -9,13 +9,11 @@ target_compile_features(sphinx PUBLIC cxx_std_23)
 set(
 		SPHINX_SOURCES
 		main.cpp
-		screen.cpp
-		hid.cpp)
+		screen.cpp)
 
 set(
 		SPHINX_HEADERS
-		screen.hpp
-		hid.hpp)
+		screen.hpp)
 
 list(TRANSFORM SPHINX_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
 list(TRANSFORM SPHINX_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/sphinx/)
