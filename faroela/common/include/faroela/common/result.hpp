@@ -20,8 +20,8 @@ namespace faroela::common {
 	};
 
 	// NOTE: For some reason `[[gnu::warn_unused_result]]` and `[[nodiscard]]` don't work here.
-	template<typename T>
-	using result = std::expected<T, error>;
+	template<typename type>
+	using result = std::expected<type, error>;
 
 	using unexpected = std::unexpected<error>;
 
@@ -31,9 +31,9 @@ namespace faroela::common {
 		return unexpected(error{ code, location, std::string(message) });
 	}
 
-	template<typename T>
+	template<typename type>
 	[[nodiscard]]
-	constexpr inline unexpected system_error(T code, std::source_location location = std::source_location::current()) {
+	constexpr inline unexpected system_error(type code, std::source_location location = std::source_location::current()) {
 		std::error_code sys(static_cast<int>(code), std::system_category());
 		// TODO: Offer `strerrorname_np` where available to convert code name.
 		return unexpect(sys.message(), error_code::unknown_error, location);
