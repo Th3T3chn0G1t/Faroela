@@ -43,17 +43,21 @@ namespace faroela {
 			return forward(result);
 		}
 
-		ctx->hid.status_callback = [&](auto event) {
+		// TODO: Static here is a temporary solution -- need to find an appropriate place to store these.
+		static auto status_callback = [&](auto event) {
 			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
 		};
+		ctx->hid.status_callback = status_callback;
 
-		ctx->hid.button_callback = [&](auto event) {
+		static auto button_callback = [&](auto event) {
 			ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
 		};
+		ctx->hid.button_callback = button_callback;
 
-		ctx->hid.axis_callback = [&](auto event) {
+		static auto axis_callback = [&](auto event) {
 			ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
 		};
+		ctx->hid.axis_callback = axis_callback;
 
 		tracy::SetThreadName("faroela_main");
 
@@ -69,7 +73,7 @@ namespace faroela {
 		logger->info("Shutting down...");
 
 		for(auto& system : ctx->event_systems) {
-			auto loop = system.second.get();
+			auto loop = system.second.loop.get();
 			unsigned shutdown_tries = 0;
 
 			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
@@ -78,16 +82,19 @@ namespace faroela {
 				uv_close(handle, handle_close);
 			}, nullptr);
 
-			int libuv_result = uv_loop_close(loop);
+			uv_stop(loop);
+
+			// TODO: Set up a timer signal to timeout joins here to give up on loop closure.
+			int libuv_result = uv_thread_join(&system.second.thread);
 			if(libuv_result < 0) [[unlikely]] {
+				// TODO: Remove the emplaced member -- we should init the loop first then move it into the map.
+				log_error(logger, libuv_error(libuv_result));
+			}
 
-				// Loop may need to be flushed before closing -- possibly to run handle close callbacks.
+			libuv_result = uv_loop_close(loop);
+			if(libuv_result < 0) [[unlikely]] {
+				// TODO: Is this necessary?
 				if(libuv_result == UV_EBUSY) {
-					libuv_result = uv_run(loop, UV_RUN_NOWAIT);
-					if(libuv_result < 0) {
-						log_error(logger, libuv_error(libuv_result));
-					}
-
 					// TODO: Configurable?
 					if(++shutdown_tries == 3) {
 						logger->critical("Could not close event loop '{}' -- skipping...", system.first);
@@ -108,7 +115,7 @@ namespace faroela {
 		spdlog::shutdown();
 	}
 
-	result<context::loop_ref> context::get_system(std::string_view system) {
+	result<context::system_ref> context::get_system(std::string_view system) {
 		const auto& it = event_systems.find(system);
 
 #ifdef NDEBUG
@@ -117,25 +124,25 @@ namespace faroela {
 		}
 #endif
 
-		return loop_ref(it->second);
+		return system_ref(it->second);
 	}
 
-	result<void> context::submit(std::string_view system, void* data, async_callback callback) {
-		auto result = get_system(system);
+	result<void> context::submit(std::string_view system_name, void* data, async_callback callback) {
+		auto result = get_system(system_name);
 
-		if(!result) {
+		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
 		// TODO: Should event data be pulled from a pool rather than new'd?
 		auto async = new(std::nothrow) uv_async_t;
-		if(!async) {
+		if(!async) [[unlikely]] {
 			return unexpect("failed to allocate event async", error_code::out_of_memory);
 		}
 
 		// TODO: Disable exceptions globally and check all std interfaces. Should we clone with a libc++ we statically
 		//		 link so we can disable it from the root?
-		int libuv_result = uv_async_init(result->get().get(), async, callback);
+		int libuv_result = uv_async_init(result->get().loop.get(), async, callback);
 		if(libuv_result < 0) [[unlikely]] {
 			uv_close(std::bit_cast<uv_handle_t*>(async), handle_close);
 			return libuv_error(libuv_result);
@@ -154,49 +161,90 @@ namespace faroela {
 	}
 
 	// TODO: Flag to mark system as needing to spawn its own thread. Should async systems enter default loop state?
-	result<void> context::add_event_system(std::string_view system) {
-		const auto& [ it, emplaced ] = event_systems.try_emplace(system, std::make_unique<uv_loop_t>());
+	result<void> context::add_event_system(std::string_view system_name) {
+		system system;
 
-#ifndef NDEBUG
-		if(!emplaced) [[unlikely]] {
-			return unexpect(std::format("event system '{}' already registered", system), error_code::key_exists);
+		system.loop = common::make_unique<uv_loop_t>(std::nothrow);
+		if(!system.loop) [[unlikely]] {
+			return unexpect(std::format("failed to allocate event system '{}'", system_name), error_code::out_of_memory);
 		}
-#endif
 
-		// TODO: Add libuv EH to all calls: https://docs.libuv.org/en/v1.x/errors.html.
-		int libuv_result = uv_loop_init(it->second.get());
-		if(libuv_result < 0) {
+		auto loop = system.loop.get();
+
+		int libuv_result = uv_loop_init(loop);
+		if(libuv_result < 0) [[unlikely]] {
 			// TODO: Remove the emplaced member -- we should init the loop first then move it into the map.
 			return libuv_error(libuv_result);
 		}
+
 		// TODO: IO system will need UV_LOOP_ENABLE_IO_URING_SQPOLL set.
-
-		return {};
-	}
-
-	// TODO: Flag for continuing past errors
-	result<void> context::pump_all() {
-		for(auto& loop : event_systems) {
-			int libuv_result = uv_run(loop.second.get(), UV_RUN_NOWAIT);
-			if(libuv_result < 0) {
-				return libuv_error(libuv_result);
-			}
-		}
-
-		return {};
-	}
-
-	result<void> context::pump(std::string_view system) {
-		auto result = get_system(system);
-
-		if(!result) {
-			return forward(result);
-		}
-
-		int libuv_result = uv_run(result->get().get(), UV_RUN_NOWAIT);
-		if(libuv_result < 0) {
+#ifndef NDEBUG
+		libuv_result = uv_loop_configure(loop, UV_METRICS_IDLE_TIME);
+		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}
+#endif
+
+		auto idle_handle = new(std::nothrow) uv_idle_t;
+		if(!idle_handle) [[unlikely]] {
+			return unexpect(std::format("failed to allocate handle when initializing event system '{}'", system_name), error_code::out_of_memory);
+		}
+
+		libuv_result = uv_idle_init(loop, idle_handle);
+		if(libuv_result < 0) [[unlikely]] {
+			return libuv_error(libuv_result);
+		}
+
+		auto idle = [](uv_idle_t*) {
+#ifndef NDEBUG
+			// TODO: Metrics from `uv_metrics_idle_time` in here and
+			//		 `uv_metrics_info` outside.
+#endif
+		};
+
+		libuv_result = uv_idle_start(idle_handle, idle);
+		if(libuv_result < 0) [[unlikely]] {
+			return libuv_error(libuv_result);
+		}
+
+		struct thread_create_pass {
+			uv_loop_t* loop;
+			std::string name;
+		}* pass = new(std::nothrow) thread_create_pass{ loop, std::string(system_name) };
+
+		if(!pass) [[unlikely]] {
+			return unexpect(std::format("failed to allocate passthrough data when initializing event system '{}'", system_name), error_code::out_of_memory);
+		}
+
+		libuv_result = uv_thread_create(&system.thread, [](void* ptr) {
+			auto pass = static_cast<thread_create_pass*>(ptr);
+
+			tracy::SetThreadName(pass->name.data());
+
+			auto loop = pass->loop;
+
+			delete pass;
+
+			int libuv_result = uv_run(loop, UV_RUN_DEFAULT);
+			if(libuv_result < 0) [[unlikely]] {
+				// TODO: EH?
+				return;
+			}
+		}, pass);
+
+		if(libuv_result < 0) [[unlikely]] {
+			return libuv_error(libuv_result);
+		}
+
+		const auto& [ it, emplaced ] = event_systems.try_emplace(system_name, std::move(system));
+
+#ifndef NDEBUG
+		if(!emplaced) [[unlikely]] {
+			// TODO: Free the loop -- a reason to compartmentalise loops (maybe RAII-y?) instead of homogenous [de-]init
+			//		 In ctx shutdown.
+			return unexpect(std::format("event system '{}' already registered", system_name), error_code::key_exists);
+		}
+#endif
 
 		return {};
 	}

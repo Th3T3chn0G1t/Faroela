@@ -26,7 +26,7 @@ namespace faroela {
 			// TODO: Could this be pulled from a pool? May be better to do so from the ctx create wrapper.
 			auto p = new(std::nothrow) delegate<event_type>{ callback, event_type{ std::forward<args>(v)... } };
 
-			if(!p) {
+			if(!p) [[unlikely]] {
 				return unexpect("failed to allocate delegate", error_code::out_of_memory);
 			}
 
@@ -39,7 +39,7 @@ namespace faroela {
 			delete data;
 
 			// TODO: Cloned from ctx -- this should just be part of the handle wrapper.
-			uv_close(handle, [](uv_handle_t* p) { delete p; });
+			uv_close(handle, [](uv_handle_t* p) { delete reinterpret_cast<uv_async_t*>(p); });
 		}
 
 		static void call(uv_async_t* handle) noexcept {

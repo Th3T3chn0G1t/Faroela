@@ -16,11 +16,17 @@ namespace faroela {
 
 	private:
 		using loop_ptr = std::unique_ptr<uv_loop_t>;
-		using loop_ref = std::reference_wrapper<loop_ptr>;
+
+		struct system {
+			loop_ptr loop;
+			uv_thread_t thread;
+		};
+
+		using system_ref = std::reference_wrapper<system>;
 
 		// TODO: This only expects to hold static strings for now -- but we may need to
 		//		 revisit this if we allow the client to register their own event systems.
-		unordered_dense::map<std::string_view, loop_ptr> event_systems;
+		unordered_dense::map<std::string_view, system> event_systems;
 
 	public:
 		hid_system hid;
@@ -31,11 +37,19 @@ namespace faroela {
 		static void shutdown(context*&);
 
 		// TODO: Move out to dedicated handle class once we have one.
-		static void handle_close(uv_handle_t* handle) { delete handle; }
+		static void handle_close(uv_handle_t* handle) {
+			// TODO: This is a mess -- we may need to move to C-style allocation functions for handles
+			// 		 Because new/delete expect type matches otherwise you get delete size mismatch.
+			if(handle->type == UV_IDLE) delete reinterpret_cast<uv_idle_t*>(handle);
+			else if(handle->type == UV_ASYNC) delete reinterpret_cast<uv_async_t*>(handle);
+			else {
+				spdlog::get("faroela")->critical("Cannot delete unexpected handle type '{}'", magic_enum::enum_name(handle->type));
+			}
+		}
 
 	private:
 		[[nodiscard]]
-		result<loop_ref> get_system(std::string_view);
+		result<system_ref> get_system(std::string_view);
 
 		static void async_callback_decl(uv_async_t*) noexcept {}
 		using async_callback = decltype(async_callback_decl)*;
@@ -46,8 +60,8 @@ namespace faroela {
 	public:
 		template<typename event_type>
 		[[nodiscard]]
-		result<void> submit(std::string_view system, delegate<event_type>& pass) {
-			return submit(system, &pass, delegate<event_type>::call);
+		result<void> submit(std::string_view system, delegate<event_type>* pass) {
+			return submit(system, pass, delegate<event_type>::call);
 		}
 
 		template<typename event_type, typename... args>
@@ -59,16 +73,10 @@ namespace faroela {
 				return forward(instance);
 			}
 
-			return submit(system, **instance);
+			return submit(system, *instance);
 		}
 
 		[[nodiscard]]
 		result<void> add_event_system(std::string_view);
-
-		[[nodiscard]]
-		result<void> pump_all();
-
-		[[nodiscard]]
-		result<void> pump(std::string_view);
 	};
 }
