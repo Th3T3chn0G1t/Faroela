@@ -28,19 +28,19 @@ extern "C" {
 		}
 
 		FAROELA_COMMON_EXPORT link_bool faroela_hid_status(faroela::context* ctx, hid::port port, link_bool connected) {
-			const auto result = ctx->submit<faroela::hid_status_event>("hid", ctx->hid.status_callback.value(), port, !!connected);
+			const auto result = ctx->submit<faroela::hid_status_event>("hid", ctx->hid.status_callback, port, !!connected);
 
 			return result.has_value();
 		}
 
 		FAROELA_COMMON_EXPORT link_bool faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, link_bool pressed) {
-			const auto result = ctx->submit<faroela::hid_button_event>("hid", ctx->hid.button_callback.value(), port, button, !!pressed);
+			const auto result = ctx->submit<faroela::hid_button_event>("hid", ctx->hid.button_callback, port, button, !!pressed);
 
 			return result.has_value();
 		}
 
 		FAROELA_COMMON_EXPORT link_bool faroela_hid_axis_event(faroela::context* ctx, hid::port port, hid::axis axis, float value) {
-			const auto result = ctx->submit<faroela::hid_axis_event>("hid", ctx->hid.axis_callback.value(), port, axis, value);
+			const auto result = ctx->submit<faroela::hid_axis_event>("hid", ctx->hid.axis_callback, port, axis, value);
 
 			return result.has_value();
 		}

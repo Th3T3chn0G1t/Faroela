@@ -8,12 +8,12 @@ namespace faroela {
 	template<typename event_type>
 	class delegate {
 	public:
-		// TODO: Once std::function_ref becomes more widespread, replace all tl::function_ref.
+		// TODO: Replace once std::function_ref becomes more widespread.
 		// TODO: Should this signature return a result?
 		using callable = tl::function_ref<void(event_type&)>;
 
 	private:
-		std::optional<callable> callback;
+		callable callback;
 		event_type data;
 
 		template<typename... args>
@@ -35,11 +35,11 @@ namespace faroela {
 
 		static void call(uv_handle_t* handle) noexcept {
 			auto data = static_cast<delegate<event_type>*>(handle->data);
-			data->callback.value()(data->data);
+			data->callback(data->data);
 			delete data;
 
 			// TODO: Cloned from ctx -- this should just be part of the handle wrapper.
-			uv_close(handle, [](uv_handle_t* p) { delete reinterpret_cast<uv_async_t*>(p); });
+			uv_close(handle, [](uv_handle_t* p) noexcept { delete reinterpret_cast<uv_async_t*>(p); });
 		}
 
 		static void call(uv_async_t* handle) noexcept {

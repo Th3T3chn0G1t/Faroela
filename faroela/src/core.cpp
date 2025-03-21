@@ -37,29 +37,25 @@ namespace faroela {
 
 		ctx->logger->info("Initializing...");
 
+		tracy::SetThreadName("faroela_main");
+
+		ctx->hid.status_callback = [ctx](auto event) {
+			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
+		};
+
+		ctx->hid.button_callback = [ctx](auto event) {
+			ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
+		};
+
+		ctx->hid.axis_callback = [ctx](auto event) {
+			ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
+		};
+
 		// TODO: Move out HID system initialization.
 		result = ctx->add_event_system("hid");
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}
-
-		// TODO: Static here is a temporary solution -- need to find an appropriate place to store these.
-		static auto status_callback = [&](auto event) {
-			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
-		};
-		ctx->hid.status_callback = status_callback;
-
-		static auto button_callback = [&](auto event) {
-			ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
-		};
-		ctx->hid.button_callback = button_callback;
-
-		static auto axis_callback = [&](auto event) {
-			ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
-		};
-		ctx->hid.axis_callback = axis_callback;
-
-		tracy::SetThreadName("faroela_main");
 
 		ctx->logger->info("Done. (Took {})", time.elapsed_ms());
 
@@ -78,7 +74,7 @@ namespace faroela {
 
 			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
 		again:
-			uv_walk(loop, [](uv_handle_t* handle, [[maybe_unused]] void* pass) {
+			uv_walk(loop, [](uv_handle_t* handle, [[maybe_unused]] void* pass) noexcept {
 				uv_close(handle, handle_close);
 			}, nullptr);
 
@@ -195,7 +191,7 @@ namespace faroela {
 			return libuv_error(libuv_result);
 		}
 
-		auto idle = [](uv_idle_t*) {
+		auto idle = [](uv_idle_t*) noexcept {
 #ifndef NDEBUG
 			// TODO: Metrics from `uv_metrics_idle_time` in here and
 			//		 `uv_metrics_info` outside.
@@ -216,7 +212,7 @@ namespace faroela {
 			return unexpect(std::format("failed to allocate passthrough data when initializing event system '{}'", system_name), error_code::out_of_memory);
 		}
 
-		libuv_result = uv_thread_create(&system.thread, [](void* ptr) {
+		libuv_result = uv_thread_create(&system.thread, [](void* ptr) noexcept {
 			auto pass = static_cast<thread_create_pass*>(ptr);
 
 			tracy::SetThreadName(pass->name.data());

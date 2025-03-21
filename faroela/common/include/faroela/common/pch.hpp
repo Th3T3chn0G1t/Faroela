@@ -41,6 +41,7 @@ namespace faroela::common {
 			{ type{ std::forward<args>(v)... } };
 	};
 
+	// NOTE: From https://stackoverflow.com/a/57092496.
 	template <class type, class... args>
 	std::unique_ptr<type> make_unique(std::nothrow_t, args&&... v) noexcept(noexcept(type(std::forward<args>(v)...))) {
 		return std::unique_ptr<type>(new(std::nothrow) type(std::forward<args>(v)...));

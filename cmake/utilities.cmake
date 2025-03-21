@@ -67,5 +67,7 @@ function(cxx_default_diagnostics TARGET)
 			/wd4061 # Non-explicitly handled enum value (Doesn't count `default:')
 			/wd4623 # Default constructor was implicitly defined as deleted
 			/wd4868 # Compiler may not enforce left-to-right evaluation order in braced initializer list
-			/wd4127) # Conditional expression is constant (Even if block contains a `break')
+			/wd4127 # Conditional expression is constant (Even if block contains a `break')
+			/wd4625 # Copy constructor was implicitly defined as deleted
+			/wd4626) # Assignment operator was implicitly defined as deleted
 endfunction()

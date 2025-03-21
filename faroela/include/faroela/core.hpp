@@ -37,7 +37,7 @@ namespace faroela {
 		static void shutdown(context*&);
 
 		// TODO: Move out to dedicated handle class once we have one.
-		static void handle_close(uv_handle_t* handle) {
+		static void handle_close(uv_handle_t* handle) noexcept {
 			// TODO: This is a mess -- we may need to move to C-style allocation functions for handles
 			// 		 Because new/delete expect type matches otherwise you get delete size mismatch.
 			if(handle->type == UV_IDLE) delete reinterpret_cast<uv_idle_t*>(handle);

@@ -38,8 +38,9 @@ namespace faroela {
 	public:
 		std::array<std::optional<hid_state>, faroela::api::hid::port_max> hid_states;
 
-		std::optional<delegate<hid_status_event>::callable> status_callback;
-		std::optional<delegate<hid_button_event>::callable> button_callback;
-		std::optional<delegate<hid_axis_event>::callable> axis_callback;
+		// TODO: Since this basically just acts as a store -- these don't need to be std::function; just a temporary fix.
+		std::function<void(hid_status_event&)> status_callback;
+		std::function<void(hid_button_event&)> button_callback;
+		std::function<void(hid_axis_event&)> axis_callback;
 	};
 }
