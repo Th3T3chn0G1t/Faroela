@@ -4,9 +4,9 @@
 
 #include <faroela/common/result.hpp>
 
-namespace faroela {
-	class context;
+#include <faroela/api/fwd.hpp>
 
+namespace faroela {
 	[[nodiscard]]
 	result<void> initialize_platform(context&);
 }
