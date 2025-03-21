@@ -9,8 +9,7 @@ namespace sphinx {
 		faroela::api::faroela_log(ctx, faroela::api::info, "Hello, Sphinx!");
 
 		auto result = create_screen(graphics_mode{
-				.width = 640,
-				.height = 480,
+				.resolution = { 640, 480 },
 				.title = "Sphinx",
 				.sync = sync_mode::vsync
 		});

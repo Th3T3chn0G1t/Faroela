@@ -3,6 +3,10 @@
 #pragma once
 
 namespace sphinx {
+	using dimension = std::array<unsigned, 2>;
+	using monitor = unsigned;
+	using screen = void*;
+
 	enum class sync_mode {
 		none,
 		vsync,
@@ -12,19 +16,22 @@ namespace sphinx {
 		late
 	};
 
+	struct monitor_info {
+		std::vector<dimension> supported_resolutions;
+		bool support_late_sync;
+	};
+
 	// TODO: Prior stage of graphics mode detection to generate a set of these instead of arbitrary arguments.
 	struct graphics_mode {
 		// TODO: Graphic startup options for GLFW vs. what we pass through to
 		//		 the engine-proper for BGFX.
 
-		unsigned width, height;
+		dimension resolution;
 		// NOTE: Expect a view of a null-terminated string.
 		std::string_view title;
 
 		sync_mode sync;
 	};
-
-	using screen = void*;
 
 	// NOTE: Screens are exclusive for Sphinx as we're designing for a homogenous
 	//		 Console/Mobile/Desktop client.

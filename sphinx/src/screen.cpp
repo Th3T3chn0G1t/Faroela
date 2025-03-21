@@ -43,7 +43,7 @@ namespace sphinx {
 
 		// TODO: Need to specify monitor here for "true" fullscreen. Should we treat windowed fullscreen as a graphics
 		//		 mode aswell?
-		GLFWwindow* window = glfwCreateWindow(static_cast<int>(mode.width), static_cast<int>(mode.height), mode.title.data(), nullptr, nullptr);
+		GLFWwindow* window = glfwCreateWindow(static_cast<int>(mode.resolution[0]), static_cast<int>(mode.resolution[1]), mode.title.data(), nullptr, nullptr);
 		if(!window) [[unlikely]] {
 			return forward(glfw_known_error());
 		}
