@@ -196,6 +196,11 @@ namespace sphinx {
 		faroela::api::faroela_hid_status(userdata.value()->ctx, faroela::api::hid::port::desktop, true);
 
 		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods) noexcept {
+			if(key < 0) {
+				// Ignore unknown keys.
+				return;
+			}
+
 			// TODO: EH here?
 			auto userdata = get_window_userdata(window);
 

@@ -69,5 +69,6 @@ function(cxx_default_diagnostics TARGET)
 			/wd4868 # Compiler may not enforce left-to-right evaluation order in braced initializer list
 			/wd4127 # Conditional expression is constant (Even if block contains a `break')
 			/wd4625 # Copy constructor was implicitly defined as deleted
-			/wd4626) # Assignment operator was implicitly defined as deleted
+			/wd4626 # Assignment operator was implicitly defined as deleted
+			/wd4574) # Macro is defined to be '0': did you mean to use '#if'?
 endfunction()

@@ -189,3 +189,11 @@ namespace faroela::api {
 		};
 	}
 }
+
+#ifdef MAGIC_ENUM_VERSION_MAJOR
+template<>
+struct magic_enum::customize::enum_range<faroela::api::hid::button> {
+	static constexpr int min = 0;
+	static constexpr int max = faroela::api::hid::button_max;
+};
+#endif
