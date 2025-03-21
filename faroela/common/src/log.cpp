@@ -19,7 +19,14 @@ namespace faroela::common {
 			console->set_level(spdlog::level::trace);
 			console->set_pattern(std::format("[{}] [%^%l%$] %v", name));
 
-			auto logger = std::make_shared<spdlog::logger>(std::string(name), spdlog::sinks_init_list{ console, debug_sink, file_sink });
+			auto sinks = spdlog::sinks_init_list{
+					console,
+#ifdef _WIN32
+					debug_sink,
+#endif
+					file_sink
+			};
+			auto logger = std::make_shared<spdlog::logger>(std::string(name), std::move(sinks));
 			spdlog::register_logger(logger);
 		};
 

@@ -34,7 +34,7 @@ namespace faroela {
 		[[nodiscard]]
 		result<loop_ref> get_system(std::string_view);
 
-		static void async_callback_decl(uv_async_t*) noexcept;
+		static void async_callback_decl(uv_async_t*) noexcept {}
 		using async_callback = decltype(async_callback_decl)*;
 
 		[[nodiscard]]

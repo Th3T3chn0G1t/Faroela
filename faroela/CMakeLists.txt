@@ -27,6 +27,8 @@ list(TRANSFORM FAROELA_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela
 
 if(WIN32)
 	include(src/windows/CMakeLists.txt)
+else()
+	include(src/nix_generic/CMakeLists.txt)
 endif()
 
 target_sources(faroela PRIVATE ${FAROELA_SOURCES} ${FAROELA_HEADERS})
