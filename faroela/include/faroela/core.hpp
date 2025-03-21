@@ -30,6 +30,9 @@ namespace faroela {
 		static result<context*> initialize();
 		static void shutdown(context*&);
 
+		// TODO: Move out to dedicated handle class once we have one.
+		static void handle_close(uv_handle_t* handle) { delete handle; }
+
 	private:
 		[[nodiscard]]
 		result<loop_ref> get_system(std::string_view);

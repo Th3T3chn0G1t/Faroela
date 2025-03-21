@@ -38,12 +38,12 @@ namespace faroela {
 			data->callback.value()(data->data);
 			delete data;
 
-			uv_close(handle, nullptr);
-			delete handle;
+			// TODO: Cloned from ctx -- this should just be part of the handle wrapper.
+			uv_close(handle, [](uv_handle_t* p) { delete p; });
 		}
 
 		static void call(uv_async_t* handle) noexcept {
-			call(reinterpret_cast<uv_handle_t*>(handle));
+			call(std::bit_cast<uv_handle_t*>(handle));
 		}
 	};
 }

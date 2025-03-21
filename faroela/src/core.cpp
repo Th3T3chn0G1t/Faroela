@@ -19,7 +19,7 @@ namespace faroela {
 	result<context*> context::initialize() {
 		faroela::common::register_default_loggers("faroela.log");
 
-		context* ctx = new(std::nothrow) context;
+		auto ctx = new(std::nothrow) context;
 		if(!ctx) [[unlikely]] {
 			return unexpect("failed to allocate context", error_code::out_of_memory);
 		}
@@ -68,16 +68,34 @@ namespace faroela {
 		const auto logger = ctx->logger;
 		logger->info("Shutting down...");
 
-		for(auto& loop : ctx->event_systems) {
-			// TODO: Do these loops need to be flushed?
-		//again:
-			// TODO: See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
-			int libuv_result = uv_loop_close(loop.second.get());
+		for(auto& system : ctx->event_systems) {
+			auto loop = system.second.get();
+			unsigned shutdown_tries = 0;
+
+			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
+		again:
+			uv_walk(loop, [](uv_handle_t* handle, [[maybe_unused]] void* pass) {
+				uv_close(handle, handle_close);
+			}, nullptr);
+
+			int libuv_result = uv_loop_close(loop);
 			if(libuv_result < 0) [[unlikely]] {
-				// TODO: Pump and retry on failure.
-				/*if(libuv_result == UV_EBUSY) {
+
+				// Loop may need to be flushed before closing -- possibly to run handle close callbacks.
+				if(libuv_result == UV_EBUSY) {
+					libuv_result = uv_run(loop, UV_RUN_NOWAIT);
+					if(libuv_result < 0) {
+						log_error(logger, libuv_error(libuv_result));
+					}
+
+					// TODO: Configurable?
+					if(++shutdown_tries == 3) {
+						logger->critical("Could not close event loop '{}' -- skipping...", system.first);
+					}
+
 					goto again;
-				}*/
+				}
+
 				log_error(logger, libuv_error(libuv_result));
 			}
 		}
@@ -110,7 +128,7 @@ namespace faroela {
 		}
 
 		// TODO: Should event data be pulled from a pool rather than new'd?
-		uv_async_t* async = new(std::nothrow) uv_async_t;
+		auto async = new(std::nothrow) uv_async_t;
 		if(!async) {
 			return unexpect("failed to allocate event async", error_code::out_of_memory);
 		}
@@ -119,7 +137,7 @@ namespace faroela {
 		//		 link so we can disable it from the root?
 		int libuv_result = uv_async_init(result->get().get(), async, callback);
 		if(libuv_result < 0) [[unlikely]] {
-			delete async;
+			uv_close(std::bit_cast<uv_handle_t*>(async), handle_close);
 			return libuv_error(libuv_result);
 		}
 
@@ -128,8 +146,7 @@ namespace faroela {
 		libuv_result = uv_async_send(async);
 		if(libuv_result < 0) [[unlikely]] {
 			// TODO: We probably need a RAII-y wrapper for libuv handles to avoid this kind of mess.
-			uv_close(std::bit_cast<uv_handle_t*>(async), nullptr);
-			delete async;
+			uv_close(std::bit_cast<uv_handle_t*>(async), handle_close);
 			return libuv_error(libuv_result);
 		}
 
