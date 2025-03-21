@@ -5,16 +5,42 @@
 #include <faroela/api/faroela.hpp>
 
 namespace sphinx {
-	static result<void> start(faroela::api::context* ctx) {
+	static result<void> start(faroela::context* ctx) {
 		faroela::api::faroela_log(ctx, faroela::api::info, "Hello, Sphinx!");
 
-		auto result = create_screen(graphics_mode{
+		auto screen = create_screen(ctx, graphics_mode{
 				.width = 640,
 				.height = 480,
 				.title = "Sphinx",
-				.sync = sync_mode::vsync
+				.sync = sync_mode::vsync,
+				.api = graphics_api::automatic
 		});
 
+		if(!screen) [[unlikely]] {
+			return forward(screen);
+		}
+
+		auto result = register_hid(screen.value());
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		while(true) {
+			result = poll_hid(screen.value());
+			if(!result) [[unlikely]] {
+				return forward(result);
+			}
+
+			auto should_close = update_screen(screen.value());
+			if(!should_close) [[unlikely]] {
+				return forward(result);
+			}
+			else if(should_close.value()) [[unlikely]] {
+				break;
+			}
+		}
+
+		result = destroy_screen(screen.value());
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}
@@ -24,7 +50,7 @@ namespace sphinx {
 }
 
 int main(int argc, char** argv) {
-	faroela::api::context* ctx;
+	faroela::context* ctx;
 
 	if(!faroela::api::faroela_initialize(&ctx, argc, argv)) return 1;
 
