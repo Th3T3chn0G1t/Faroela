@@ -4,6 +4,8 @@
 
 #include <faroela/api/faroela.hpp>
 
+#include <faroela/common/formatters.hpp>
+
 namespace sphinx {
 	static result<void> start(faroela::context* ctx) {
 		faroela::api::faroela_log(ctx, faroela::api::info, "Hello, Sphinx!");
@@ -54,8 +56,9 @@ int main(int argc, char** argv) {
 	if(!faroela::api::faroela_initialize(&ctx, argc, argv)) return 1;
 
 	auto result = sphinx::start(ctx);
-	if(result) {
-		// TODO: Work out how result passover should work. Make result part of faroela-api?
+	if(!result) {
+		// TODO: Simple log wrapper on Sphinx side.
+		faroela::api::faroela_log(ctx, faroela::api::error, std::format("{}", result).data());
 	}
 
 	faroela::api::faroela_shutdown(&ctx);
