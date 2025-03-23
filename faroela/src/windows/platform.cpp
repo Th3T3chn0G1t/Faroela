@@ -12,7 +12,7 @@ namespace faroela {
 		// TODO: Should this be part of common?
 #if _WIN32_WINNT >= 0x0501
 		if(!AttachConsole(ATTACH_PARENT_PROCESS)) {
-			common::log_error(ctx.logger, common::system_error(GetLastError()));
+			ctx.logger->error("{}", common::system_error(GetLastError()));
 		}
 #endif
 

@@ -84,7 +84,7 @@ namespace faroela {
 			int libuv_result = uv_thread_join(&system.second.thread);
 			if(libuv_result < 0) [[unlikely]] {
 				// TODO: Remove the emplaced member -- we should init the loop first then move it into the map.
-				log_error(logger, libuv_error(libuv_result));
+				logger->error("{}", libuv_error(libuv_result));
 			}
 
 			libuv_result = uv_loop_close(loop);
@@ -99,7 +99,7 @@ namespace faroela {
 					goto again;
 				}
 
-				log_error(logger, libuv_error(libuv_result));
+				logger->error("{}", libuv_error(libuv_result));
 			}
 		}
 

@@ -14,7 +14,7 @@ namespace faroela::common {
 		auto debug_sink = std::make_shared<spdlog::sinks::msvc_sink<std::mutex>>(true);
 #endif
 
-		auto create_named_logger = [&] (std::string_view name) {
+		auto create_named_logger = [&](std::string_view name) {
 			auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 			console->set_level(spdlog::level::trace);
 			console->set_pattern(std::format("[{}] [%^%l%$] %v", name));
