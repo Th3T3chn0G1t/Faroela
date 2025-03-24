@@ -37,7 +37,10 @@ namespace faroela {
 
 		ctx->logger->info("Initializing...");
 
-		tracy::SetThreadName("faroela_main");
+		int libuv_result = uv_thread_setname("main");
+		if(libuv_result < 0) [[unlikely]] {
+			ctx->logger->error("{}", libuv_error(libuv_result));
+		}
 
 		ctx->hid.status_callback = [ctx](auto event) {
 			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
@@ -81,6 +84,7 @@ namespace faroela {
 			uv_stop(loop);
 
 			// TODO: Set up a timer signal to timeout joins here to give up on loop closure.
+			// TODO: This sometimes hangs with the loop having a spare handle ref.
 			int libuv_result = uv_thread_join(&system.second.thread);
 			if(libuv_result < 0) [[unlikely]] {
 				// TODO: Remove the emplaced member -- we should init the loop first then move it into the map.
@@ -205,8 +209,9 @@ namespace faroela {
 
 		struct thread_create_pass {
 			uv_loop_t* loop;
+			context* ctx;
 			std::string name;
-		}* pass = new(std::nothrow) thread_create_pass{ loop, std::string(system_name) };
+		}* pass = new(std::nothrow) thread_create_pass{ loop, this, std::string(system_name) };
 
 		if(!pass) [[unlikely]] {
 			return unexpect(std::format("failed to allocate passthrough data when initializing event system '{}'", system_name), error_code::out_of_memory);
@@ -215,16 +220,18 @@ namespace faroela {
 		libuv_result = uv_thread_create(&system.thread, [](void* ptr) noexcept {
 			auto pass = static_cast<thread_create_pass*>(ptr);
 
-			tracy::SetThreadName(pass->name.data());
+			int libuv_result = uv_thread_setname(pass->name.data());
+			if(libuv_result < 0) [[unlikely]] {
+				pass->ctx->logger->error("{}", libuv_error(libuv_result));
+			}
 
 			auto loop = pass->loop;
 
 			delete pass;
 
-			int libuv_result = uv_run(loop, UV_RUN_DEFAULT);
+			libuv_result = uv_run(loop, UV_RUN_DEFAULT);
 			if(libuv_result < 0) [[unlikely]] {
-				// TODO: EH?
-				return;
+				pass->ctx->logger->error("{}", libuv_error(libuv_result));
 			}
 		}, pass);
 
