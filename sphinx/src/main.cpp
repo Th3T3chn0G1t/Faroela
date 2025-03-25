@@ -23,6 +23,7 @@ namespace sphinx {
 		auto primary = std::find_if(monitors->begin(), monitors->end(), [&](auto& monitor) { return monitor.primary; });
 		if(primary == monitors->end()) {
 			faroela::api::faroela_log(ctx, faroela::api::error, "Could not determine primary monitor, assuming index 0");
+			primary = monitors->begin();
 		}
 
 		auto screen = screen::create(ctx, graphics_mode{
