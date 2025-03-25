@@ -18,12 +18,17 @@
 #include <memory>
 #include <optional>
 #include <source_location>
+#include <span>
 #include <string_view>
 #include <system_error>
 #include <utility>
 #include <variant>
 
 #include <cstdlib>
+
+#ifdef __APPLE__
+# include <TargetConditionals.h>
+#endif
 
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>

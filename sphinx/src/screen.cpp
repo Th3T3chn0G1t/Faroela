@@ -7,11 +7,6 @@
 #include <GLFW/glfw3.h>
 
 namespace sphinx {
-	struct window_userdata {
-		faroela::context* ctx;
-		graphics_mode mode;
-	};
-
 	[[nodiscard]]
 	static inline result<void> glfw_known_error(std::source_location location = std::source_location::current()) {
 		const char* description;
@@ -36,16 +31,14 @@ namespace sphinx {
 		return unexpect(description, error_code::unknown_error, location);
 	}
 
-	static result<window_userdata*> get_window_userdata(GLFWwindow* window) {
+	static result<screen*> get_window_screen(GLFWwindow* window) {
 		auto ptr = glfwGetWindowUserPointer(window);
 		auto result = glfw_error();
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
-		auto ctx = static_cast<window_userdata*>(ptr);
-
-		return ctx;
+		return static_cast<screen*>(ptr);
 	}
 
 	static result<void> set_gl_state(GLFWwindow* window, const graphics_mode& mode) {
@@ -104,14 +97,108 @@ namespace sphinx {
 		return {};
 	}
 
-	result<screen> create_screen(faroela::context* ctx, const graphics_mode& mode) {
-		// TODO: Resolve "automatic" API selection here before proceeding.
-
-		// TODO: Do we want to be able to re-create screen to change mode?
+	result<void> initialize_screen_environment() {
 		if(!glfwInit()) [[unlikely]] {
 			return forward(glfw_known_error());
 		}
 
+		return {};
+	}
+
+	result<void> shutdown_screen_environment() {
+		glfwTerminate();
+		auto result = glfw_error();
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		return {};
+	}
+
+	std::span<const graphics_api> get_supported_apis() {
+		constexpr auto apis = std::to_array({
+				graphics_api::automatic,
+				graphics_api::native,
+
+#ifdef __EMSCRIPTEN__
+				graphics_api::webgl
+#else
+# ifndef __cplusplus_winrt
+				graphics_api::opengl,
+				// TODO: Should we disable Vulkan on Apple platforms [or at least non-macOS Apple platforms]?
+				graphics_api::vulkan,
+# endif
+# if !defined(_WIN32) || (defined(__APPLE__) && !defined(TARGET_OS_MAC))
+				graphics_api::opengles,
+# endif
+
+# ifdef _WIN32
+				graphics_api::directx,
+# endif
+
+# ifdef __APPLE__
+				graphics_api::metal
+# endif
+#endif
+		});
+
+		return apis;
+	}
+
+	[[nodiscard]]
+	result<std::vector<monitor_info>> get_monitor_info() {
+		std::vector<monitor_info> info;
+
+		int count;
+		GLFWmonitor** monitors = glfwGetMonitors(&count);
+		auto result = glfw_error();
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		GLFWmonitor* primary = glfwGetPrimaryMonitor();
+		result = glfw_error();
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		for(int i = 0; i < count; ++i) {
+			auto monitor = monitors[i];
+
+			const char* name = glfwGetMonitorName(monitor);
+			result = glfw_error();
+			if(!result) [[unlikely]] {
+				return forward(result);
+			}
+
+			std::vector<dimension> resolutions;
+			int vid_count;
+			const GLFWvidmode* modes = glfwGetVideoModes(monitor, &vid_count);
+			result = glfw_error();
+			if(!result) [[unlikely]] {
+				return forward(result);
+			}
+
+			for(int j = 0; j < vid_count; ++j) {
+				auto& mode = modes[j];
+
+				resolutions.emplace_back(dimension{ { static_cast<unsigned>(mode.width), static_cast<unsigned>(mode.height) } });
+			}
+
+			info.emplace_back(monitor_info{
+					.supported_resolutions = std::move(resolutions),
+					.name = std::string(name),
+					.primary = primary == monitor,
+					.index = i
+			});
+		}
+
+		return std::move(info);
+	}
+
+	result<std::unique_ptr<screen>> screen::create(faroela::context* ctx, const graphics_mode& mode) {
+		// TODO: Resolve "automatic" API selection here before proceeding.
+		// TODO: Do we want to be able to re-create screen to change mode?
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		auto result = glfw_error();
 		if(!result) [[unlikely]] {
@@ -126,13 +213,18 @@ namespace sphinx {
 
 		// TODO: Need to specify monitor here for "true" fullscreen. Should we treat windowed fullscreen as a graphics
 		//		 mode aswell?
-		GLFWwindow* window = glfwCreateWindow(static_cast<int>(mode.resolution[0]), static_cast<int>(mode.resolution[1]), mode.title.data(), nullptr, nullptr);
+		GLFWwindow* window = glfwCreateWindow(static_cast<int>(mode.resolution[0]), static_cast<int>(mode.resolution[1]), std::string(mode.title).data(), nullptr, nullptr);
 		if(!window) [[unlikely]] {
 			return forward(glfw_known_error());
 		}
 
-		auto userdata = new(std::nothrow) window_userdata{ ctx, mode };
-		glfwSetWindowUserPointer(window, userdata);
+		auto retval = faroela::common::make_unique<screen>(std::nothrow, mode, ctx, window);
+		if(!retval) [[unlikely]] {
+			// TODO: Clean up dead init state.
+			return unexpect("failed to allocate screen", error_code::out_of_memory);
+		}
+
+		glfwSetWindowUserPointer(window, retval.get());
 		result = glfw_error();
 		if(!result) [[unlikely]] {
 			return forward(result);
@@ -145,18 +237,14 @@ namespace sphinx {
 			}
 		}
 
-		return static_cast<screen>(window);
+		return retval;
 	}
 
 	[[nodiscard]]
-	result<bool> update_screen(screen screen) {
-		auto window = static_cast<GLFWwindow*>(screen);
-		auto userdata = get_window_userdata(window);
-		if(!userdata) [[unlikely]] {
-			return forward(userdata);
-		}
+	result<bool> screen::update() {
+		auto window = static_cast<GLFWwindow*>(data);
 
-		if(userdata.value()->mode.api == graphics_api::opengl) {
+		if(mode.api == graphics_api::opengl) {
 			glfwSwapBuffers(window);
 			auto result = glfw_error();
 			if(!result) [[unlikely]] {
@@ -174,8 +262,8 @@ namespace sphinx {
 	}
 
 	[[nodiscard]]
-	result<void> destroy_screen(screen screen) {
-		auto window = static_cast<GLFWwindow*>(screen);
+	result<void> screen::destroy() {
+		auto window = static_cast<GLFWwindow*>(data);
 
 		glfwDestroyWindow(window);
 		auto result = glfw_error();
@@ -186,14 +274,10 @@ namespace sphinx {
 		return {};
 	}
 
-	result<void> register_hid(screen screen) {
-		auto window = static_cast<GLFWwindow*>(screen);
-		auto userdata = get_window_userdata(window);
-		if(!userdata) [[unlikely]] {
-			return forward(userdata);
-		}
+	result<void> screen::register_hid() {
+		auto window = static_cast<GLFWwindow*>(data);
 
-		faroela::api::faroela_hid_status(userdata.value()->ctx, faroela::api::hid::port::desktop, true);
+		faroela::api::faroela_hid_status(ctx, faroela::api::hid::port::desktop, true);
 
 		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods) noexcept {
 			if(key < 0) {
@@ -202,10 +286,10 @@ namespace sphinx {
 			}
 
 			// TODO: EH here?
-			auto userdata = get_window_userdata(window);
+			auto screen = get_window_screen(window);
 
 			auto button = static_cast<faroela::api::hid::button>(key);
-			faroela::api::faroela_hid_button_event(userdata.value()->ctx, faroela::api::hid::port::desktop, button, action == GLFW_PRESS);
+			faroela::api::faroela_hid_button_event((*screen)->ctx, faroela::api::hid::port::desktop, button, action == GLFW_PRESS);
 		});
 		auto result = glfw_error();
 		if(!result) [[unlikely]] {
@@ -216,13 +300,7 @@ namespace sphinx {
 	}
 
 	[[nodiscard]]
-	result<void> poll_hid(screen screen) {
-		auto window = static_cast<GLFWwindow*>(screen);
-		auto userdata = get_window_userdata(window);
-		if(!userdata) [[unlikely]] {
-			return forward(userdata);
-		}
-
+	result<void> screen::poll_hid() {
 		glfwPollEvents();
 		auto result = glfw_error();
 		if(!result) [[unlikely]] {

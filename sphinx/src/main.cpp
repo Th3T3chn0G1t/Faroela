@@ -10,29 +10,45 @@ namespace sphinx {
 	static result<void> start(faroela::context* ctx) {
 		faroela::api::faroela_log(ctx, faroela::api::info, "Hello, Sphinx!");
 
-		auto screen = create_screen(ctx, graphics_mode{
-				.resolution = { 640, 480 },
+		auto result = initialize_screen_environment();
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		auto monitors = get_monitor_info();
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		auto primary = std::find_if(monitors->begin(), monitors->end(), [&](auto& monitor) { return monitor.primary; });
+		if(primary == monitors->end()) {
+			faroela::api::faroela_log(ctx, faroela::api::error, "Could not determine primary monitor, assuming index 0");
+		}
+
+		auto screen = screen::create(ctx, graphics_mode{
+				.resolution = primary->supported_resolutions[0],
 				.title = "Sphinx",
 				.sync = sync_mode::vsync,
-				.api = graphics_api::automatic
+				.api = graphics_api::automatic,
+				.monitor_index = static_cast<int>(primary - monitors->begin())
 		});
 
 		if(!screen) [[unlikely]] {
 			return forward(screen);
 		}
 
-		auto result = register_hid(screen.value());
+		result = (*screen)->register_hid();
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
 		while(true) {
-			result = poll_hid(screen.value());
+			result = (*screen)->poll_hid();
 			if(!result) [[unlikely]] {
 				return forward(result);
 			}
 
-			auto should_close = update_screen(screen.value());
+			auto should_close = (*screen)->update();
 			if(!should_close) [[unlikely]] {
 				return forward(result);
 			}
@@ -41,7 +57,12 @@ namespace sphinx {
 			}
 		}
 
-		result = destroy_screen(screen.value());
+		result = (*screen)->destroy();
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		result = shutdown_screen_environment();
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}
