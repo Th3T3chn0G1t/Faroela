@@ -4,7 +4,7 @@
 
 #include <faroela/common/result.hpp>
 
-#include <faroela/api/fwd.hpp>
+#include <faroela/core.hpp>
 
 namespace faroela {
 	[[nodiscard]]

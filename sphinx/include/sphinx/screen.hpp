@@ -2,7 +2,9 @@
 
 #pragma once
 
-#include <faroela/api/fwd.hpp>
+namespace faroela {
+	class context;
+}
 
 namespace sphinx {
 	using dimension = std::array<unsigned, 2>;

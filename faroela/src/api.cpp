@@ -9,7 +9,7 @@
 
 namespace faroela::api {
 	template<typename type>
-	static link_bool handle_result(faroela::context *ctx, const result<type> &result) {
+	static link_bool handle_result(faroela::context* ctx, const result<type>& result) {
 		if(!result) [[unlikely]] {
 			ctx->api_logger->error("{}", result);
 			return false;
@@ -30,23 +30,27 @@ extern "C" {
 			return result.has_value();
 		}
 
-		FAROELA_COMMON_EXPORT void faroela_shutdown(faroela::context** ctx) {
+		FAROELA_COMMON_EXPORT link_bool faroela_shutdown(faroela::context** ctx) {
 			faroela::context::shutdown(*ctx);
+
+			return true;
 		}
 
-		FAROELA_COMMON_EXPORT void faroela_log(faroela::context* ctx, verbosity level, const char* message) {
+		FAROELA_COMMON_EXPORT link_bool faroela_log(faroela::context* ctx, verbosity level, const char* message) {
 			ctx->client_logger->log(spdlog::level::level_enum(level), std::string_view(message));
+
+			return true;
 		}
 
-		FAROELA_COMMON_EXPORT link_bool faroela_hid_status(faroela::context* ctx, hid::port port, link_bool connected) {
+		FAROELA_COMMON_EXPORT link_bool faroela_hid_status(faroela::context* ctx, hid_port port, link_bool connected) {
 			return handle_result(ctx, ctx->submit<faroela::hid_status_event>("hid", ctx->hid.status_callback, port, !!connected));
 		}
 
-		FAROELA_COMMON_EXPORT link_bool faroela_hid_button_event(faroela::context* ctx, hid::port port, hid::button button, link_bool pressed) {
+		FAROELA_COMMON_EXPORT link_bool faroela_hid_button_event(faroela::context* ctx, hid_port port, hid_button button, link_bool pressed) {
 			return handle_result(ctx, ctx->submit<faroela::hid_button_event>("hid", ctx->hid.button_callback, port, button, !!pressed));
 		}
 
-		FAROELA_COMMON_EXPORT link_bool faroela_hid_axis_event(faroela::context* ctx, hid::port port, hid::axis axis, float value) {
+		FAROELA_COMMON_EXPORT link_bool faroela_hid_axis_event(faroela::context* ctx, hid_port port, hid_axis axis, float value) {
 			return handle_result(ctx, ctx->submit<faroela::hid_axis_event>("hid", ctx->hid.axis_callback, port, axis, value));
 		}
 	}

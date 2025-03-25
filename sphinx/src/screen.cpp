@@ -277,7 +277,7 @@ namespace sphinx {
 	result<void> screen::register_hid() {
 		auto window = static_cast<GLFWwindow*>(data);
 
-		faroela::api::faroela_hid_status(ctx, faroela::api::hid::port::desktop, true);
+		faroela::api::faroela_hid_status(ctx, faroela::api::hid_port::desktop, true);
 
 		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods) noexcept {
 			if(key < 0) {
@@ -288,8 +288,8 @@ namespace sphinx {
 			// TODO: EH here?
 			auto screen = get_window_screen(window);
 
-			auto button = static_cast<faroela::api::hid::button>(key);
-			faroela::api::faroela_hid_button_event((*screen)->ctx, faroela::api::hid::port::desktop, button, action == GLFW_PRESS);
+			auto button = static_cast<faroela::api::hid_button>(key);
+			faroela::api::faroela_hid_button_event((*screen)->ctx, faroela::api::hid_port::desktop, button, action == GLFW_PRESS);
 		});
 		auto result = glfw_error();
 		if(!result) [[unlikely]] {

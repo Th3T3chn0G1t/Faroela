@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 
-# TODO: Make these optional -- use less optimal impls in older cmake.
+# TODO: More of these can be optional -- use less optimal impls in older cmake.
+# <fallback from CMP0163> `add_dependencies(<interface>)`: 3.3
+# `if(VERSION_GREATER_EQUAL)`: 3.7
 # `cmake_policy(CMP0069)`/`check_ipo_supported()`: 3.9
 # `string(PREPEND)`: 3.10
 # `find_package(Python3)`: 3.12
@@ -13,10 +15,22 @@
 # `target_compile_features(cxx_std_23)`: 3.20
 # `CMAKE_GENERATOR "Visual Studio 17 2022"`: 3.21
 # `$<LINK_LIBRARY:WHOLE_ARCHIVE>`: 3.24
-cmake_minimum_required(VERSION 3.24)
+# <optional> `Python3_INTERPRETER`: 3.30
+# <optional> `cmake_policy(CMP0163)`: 3.30
+# <optional> `add_custom_command(CODEGEN)`: 3.31
+cmake_minimum_required(VERSION 3.24...3.31 FATAL_ERROR)
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.31")
+	# Enable `add_custom_command(CODEGEN)` enhancements.
+	cmake_policy(SET CMP0171 NEW)
+endif()
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
+	# Allow `GENERATED` source property to propogate between dirs.
+	cmake_policy(SET CMP0163 NEW)
+endif()
 
 # Enforce IPO when set.
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 cmake_policy(SET CMP0069 NEW)
 
 # Allow variables to propagate to sub-projects.
@@ -34,6 +48,15 @@ project(Faroela CXX)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT IPO_SUPPORTED)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${IPO_SUPPORTED})
+
+# `argparse`: 3.2
+find_package(Python3 3.2 REQUIRED COMPONENTS Interpreter)
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
+	set(FAROELA_PYTHON_INTERPRETER ${Python3_INTERPRETER})
+else()
+	set(FAROELA_PYTHON_INTERPRETER ${Python3_EXECUTABLE})
+endif()
 
 add_subdirectory(faroela)
 add_subdirectory(pharaoh)

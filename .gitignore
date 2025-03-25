@@ -10,4 +10,6 @@ obj
 
 *.user
 
+faroela/api/include/faroela.hpp
+
 *.log
