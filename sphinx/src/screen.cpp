@@ -5,14 +5,30 @@
 #include <faroela/api/faroela.hpp>
 
 #include <GLFW/glfw3.h>
+#ifdef _WIN32
+// NOTE: This is a bit dodgy but saves us needing to drag in all of Win32 for 2 types.
+using HWND = void*;
+using HGLRC = void*;
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#elif defined(__APPLE__)
+#define GLFW_EXPOSE_NATIVE_COCOA
+#define GLFW_EXPOSE_NATIVE_NSGL
+#else
+// TODO: Wayland runtime switching?
+// TODO: Handle EGL & OSMESA.
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_GLX
+#endif
+#define GLFW_NATIVE_INCLUDE_NONE
+#include <GLFW/glfw3native.h>
 
 namespace sphinx {
+	// The error code check is not necessary with known error conditions.
 	[[nodiscard]]
 	static inline result<void> glfw_known_error(std::source_location location = std::source_location::current()) {
 		const char* description;
 		glfwGetError(&description);
-
-		// The error code check is not neccesary with known error conditions.
 
 		// TODO: Transform error code.
 		return unexpect(description, error_code::unknown_error, location);
@@ -226,7 +242,7 @@ namespace sphinx {
 
 		retval->mode = mode;
 		retval->ctx = ctx;
-		retval->data = window;
+		retval->handle = window;
 
 		glfwSetWindowUserPointer(window, retval.get());
 		result = glfw_error();
@@ -241,20 +257,42 @@ namespace sphinx {
 			}
 		}
 
+		// NOTE: Intentionally no EH on these GLFW calls for simplicity and because bgfx handles nullptr gracefully
+		//		 On the Faroela side.
+#ifdef _WIN32
+		auto native_window = glfwGetWin32Window;
+		auto native_connection = [](GLFWwindow*) { return nullptr; };
+		auto native_context = glfwGetWGLContext;
+#elif defined(__APPLE__)
+		auto native_window = glfwGetCocoaWindow;
+		auto native_connection = [](GLFWwindow*) { return nullptr; };
+		auto native_context = glfwGetNSGLContext;
+#else
+		auto native_window = glfwGetX11Window;
+		auto native_connection = glfwGetX11Display;
+		auto native_context = glfwGetGLXContext;
+#endif
+
+		// TODO: Update clip with resize callback.
+		auto success = faroela::api::faroela_render_clip(ctx, 0, 0, mode.resolution[0], mode.resolution[1]);
+		if(!success) {
+			// TODO: Basic result constructs should probably just be imported into the local namespace.
+			return faroela::common::unexpect("failed to clip render area");
+		}
+
+		success = faroela::api::faroela_render_attach(ctx, native_window(window), native_connection(window), native_context(window));
+		// Clear error state.
+		glfwGetError(nullptr);
+		if(!success) {
+			return faroela::common::unexpect("failed to attach render to screen");
+		}
+
 		return retval;
 	}
 
 	[[nodiscard]]
 	result<bool> screen::update() {
-		auto window = static_cast<GLFWwindow*>(data);
-
-		if(mode.api == graphics_api::opengl) {
-			glfwSwapBuffers(window);
-			auto result = glfw_error();
-			if(!result) [[unlikely]] {
-				return forward(result);
-			}
-		}
+		auto window = static_cast<GLFWwindow*>(handle);
 
 		bool should_close = !!glfwWindowShouldClose(window);
 		auto result = glfw_error();
@@ -262,12 +300,26 @@ namespace sphinx {
 			return forward(result);
 		}
 
+		// TODO: What sync rules do we want here for Sphinx.
+		auto success = faroela::api::faroela_render_update(ctx, true);
+		if(!success) {
+			return faroela::common::unexpect("failed to attach render to screen");
+		}
+
+		if(mode.api == graphics_api::opengl) {
+			glfwSwapBuffers(window);
+			result = glfw_error();
+			if(!result) [[unlikely]] {
+				return forward(result);
+			}
+		}
+
 		return should_close;
 	}
 
 	[[nodiscard]]
 	result<void> screen::destroy() {
-		auto window = static_cast<GLFWwindow*>(data);
+		auto window = static_cast<GLFWwindow*>(handle);
 
 		glfwDestroyWindow(window);
 		auto result = glfw_error();
@@ -279,7 +331,7 @@ namespace sphinx {
 	}
 
 	result<void> screen::register_hid() {
-		auto window = static_cast<GLFWwindow*>(data);
+		auto window = static_cast<GLFWwindow*>(handle);
 
 		faroela::api::faroela_hid_status(ctx, faroela::api::hid_port::desktop, true);
 

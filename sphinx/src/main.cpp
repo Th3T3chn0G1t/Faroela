@@ -75,15 +75,21 @@ namespace sphinx {
 int main(int argc, char** argv) {
 	faroela::context* ctx;
 
-	if(!faroela::api::faroela_initialize(&ctx, argc, argv)) return 1;
+	auto success = faroela::api::faroela_initialize(&ctx, argc, argv);
+	if(!success) {
+		return 1;
+	}
 
 	auto result = sphinx::start(ctx);
 	if(!result) {
-		// TODO: Simple log wrapper on Sphinx side.
+		// TODO: Simple log wrapper on Sphinx side. Needs to check error state.
 		faroela::api::faroela_log(ctx, faroela::api::verbosity::error, std::format("{}", result).data());
 	}
 
-	faroela::api::faroela_shutdown(&ctx);
+	success = faroela::api::faroela_shutdown(&ctx);
+	if(!success) {
+		return 1;
+	}
 
 	return 0;
 }

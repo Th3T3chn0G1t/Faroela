@@ -9,6 +9,11 @@
 
 #include <tl/function_ref.hpp>
 
+#include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
+
+#include <uv.h>
+
 namespace faroela {
 	using common::result;
 	using error_code = common::error_code;

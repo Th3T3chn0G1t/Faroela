@@ -7,6 +7,8 @@
 #include <faroela/api/faroela.hpp>
 
 namespace faroela {
+	class context;
+
 	struct hid_status_event {
 		faroela::api::hid_port port;
 		bool connected;
@@ -42,5 +44,8 @@ namespace faroela {
 		std::function<void(hid_status_event&)> status_callback;
 		std::function<void(hid_button_event&)> button_callback;
 		std::function<void(hid_axis_event&)> axis_callback;
+
+	public:
+		static result<hid_system> create(context*);
 	};
 }

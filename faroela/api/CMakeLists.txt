@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 
+# TODO: This seems to always build?
 function(faroela_api_generate LANGUAGE OUTPUT)
 	set(FAROELA_API_GENERATE_SCRIPT ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/generate.py)
 	set(FAROELA_API_SOURCE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/api.json)

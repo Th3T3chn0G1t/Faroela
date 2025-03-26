@@ -198,7 +198,8 @@
 		"hid_button_event": [ "context",  "hid_port",  "hid_button",  "bool" ],
 		"hid_axis_event": [ "context",  "hid_port",  "hid_axis",  "float" ],
 
-		"screen_attach": [ "context",  "pointer" ],
-		"screen_clip": [ "context",  "int",  "int",  "int",  "int" ]
+		"render_attach": [ "context",  "pointer", "pointer", "pointer" ],
+		"render_clip": [ "context",  "int",  "int",  "uint",  "uint" ],
+		"render_update": [ "context", "bool" ]
 	}
 }

@@ -85,13 +85,14 @@ namespace sphinx {
 
 	private:
 		faroela::context* ctx;
-		void* data;
+		void* handle;
 
 	public:
 		[[nodiscard]]
 		static result<std::unique_ptr<screen>> create(faroela::context*, const graphics_mode&);
 
 	public:
+		// TODO: Why does this have an explicit destroy function instead of a destructor?
 		[[nodiscard]]
 		result<void> destroy();
 

@@ -15,3 +15,8 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/unordered_dense SYSTEM)
 
 set(FUNCTION_REF_ENABLE_TESTS OFF)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/function_ref SYSTEM)
+
+set(BGFX_BUILD_EXAMPLES OFF)
+set(BGFX_INSTALL OFF)
+set(BGFX_LIBRARY_TYPE STATIC)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bgfx SYSTEM)

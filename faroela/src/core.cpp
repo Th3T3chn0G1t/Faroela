@@ -42,23 +42,17 @@ namespace faroela {
 			ctx->logger->error("{}", libuv_error(libuv_result));
 		}
 
-		ctx->hid.status_callback = [ctx](auto event) {
-			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
-		};
-
-		ctx->hid.button_callback = [ctx](auto event) {
-			ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
-		};
-
-		ctx->hid.axis_callback = [ctx](auto event) {
-			ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
-		};
-
-		// TODO: Move out HID system initialization.
-		result = ctx->add_event_system("hid");
-		if(!result) [[unlikely]] {
-			return forward(result);
+		auto hid = hid_system::create(ctx);
+		if(!hid) {
+			return forward(hid);
 		}
+		ctx->hid = std::move(*hid);
+
+		auto render = render_system::create(ctx);
+		if(!render) {
+			return forward(render);
+		}
+		ctx->render = std::move(*render);
 
 		ctx->logger->info("Done. (Took {})", time.elapsed_ms());
 
@@ -75,10 +69,10 @@ namespace faroela {
 			auto loop = system.second.loop.get();
 			unsigned shutdown_tries = 0;
 
-			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
 		again:
-			uv_walk(loop, [](uv_handle_t* handle, [[maybe_unused]] void* pass) noexcept {
-				uv_close(handle, handle_close);
+			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
+			uv_walk(loop, [](uv_handle_t* handle, void*) noexcept {
+				uv_close(handle, reinterpret_cast<uv_close_cb>(free));
 			}, nullptr);
 
 			uv_stop(loop);
@@ -128,23 +122,22 @@ namespace faroela {
 	}
 
 	result<void> context::submit(std::string_view system_name, void* data, async_callback callback) {
-		auto result = get_system(system_name);
-
-		if(!result) [[unlikely]] {
-			return forward(result);
+		auto system = get_system(system_name);
+		if(!system) [[unlikely]] {
+			return forward(system);
 		}
 
-		// TODO: Should event data be pulled from a pool rather than new'd?
-		auto async = new(std::nothrow) uv_async_t;
+		// TODO: Should event data be pulled from a pool rather than heap allocated?
+		auto async = common::typed_alloc<uv_async_t>();
 		if(!async) [[unlikely]] {
 			return unexpect("failed to allocate event async", error_code::out_of_memory);
 		}
 
 		// TODO: Disable exceptions globally and check all std interfaces. Should we clone with a libc++ we statically
 		//		 link so we can disable it from the root?
-		int libuv_result = uv_async_init(result->get().loop.get(), async, callback);
+		int libuv_result = uv_async_init(system->get().loop.get(), async, reinterpret_cast<uv_async_cb>(callback));
 		if(libuv_result < 0) [[unlikely]] {
-			uv_close(std::bit_cast<uv_handle_t*>(async), handle_close);
+			uv_close(std::bit_cast<uv_handle_t*>(async), reinterpret_cast<uv_close_cb>(free));
 			return libuv_error(libuv_result);
 		}
 
@@ -153,15 +146,14 @@ namespace faroela {
 		libuv_result = uv_async_send(async);
 		if(libuv_result < 0) [[unlikely]] {
 			// TODO: We probably need a RAII-y wrapper for libuv handles to avoid this kind of mess.
-			uv_close(std::bit_cast<uv_handle_t*>(async), handle_close);
+			uv_close(std::bit_cast<uv_handle_t*>(async), reinterpret_cast<uv_close_cb>(free));
 			return libuv_error(libuv_result);
 		}
 
 		return {};
 	}
 
-	// TODO: Flag to mark system as needing to spawn its own thread. Should async systems enter default loop state?
-	result<void> context::add_event_system(std::string_view system_name) {
+	result<void> context::add_system(std::string_view system_name) {
 		system system;
 
 		system.loop = common::make_unique<uv_loop_t>(std::nothrow);
@@ -185,11 +177,12 @@ namespace faroela {
 		}
 #endif
 
-		auto idle_handle = new(std::nothrow) uv_idle_t;
+		auto idle_handle = common::typed_alloc<uv_idle_t>();
 		if(!idle_handle) [[unlikely]] {
 			return unexpect(std::format("failed to allocate handle when initializing event system '{}'", system_name), error_code::out_of_memory);
 		}
 
+		// TODO: Switch this default idler to use `add_idler`.
 		libuv_result = uv_idle_init(loop, idle_handle);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
@@ -248,6 +241,32 @@ namespace faroela {
 			return unexpect(std::format("event system '{}' already registered", system_name), error_code::key_exists);
 		}
 #endif
+
+		return {};
+	}
+
+	result<void> context::add_idler(std::string_view system_name, delegate<delegate_dummy, false>* idler) {
+		auto system = get_system(system_name);
+		if(!system) [[unlikely]] {
+			return forward(system);
+		}
+
+		auto idle_handle = common::typed_alloc<uv_idle_t>();
+		if(!idle_handle) [[unlikely]] {
+			return unexpect(std::format("failed to allocate handle when initializing event system '{}'", system_name), error_code::out_of_memory);
+		}
+
+		idle_handle->data = idler;
+
+		int libuv_result = uv_idle_init(system->get().loop.get(), idle_handle);
+		if(libuv_result < 0) [[unlikely]] {
+			return libuv_error(libuv_result);
+		}
+
+		libuv_result = uv_idle_start(idle_handle, delegate<delegate_dummy, false>::call);
+		if(libuv_result < 0) [[unlikely]] {
+			return libuv_error(libuv_result);
+		}
 
 		return {};
 	}

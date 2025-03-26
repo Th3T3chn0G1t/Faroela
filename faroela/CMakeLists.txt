@@ -13,14 +13,16 @@ set(
 		FAROELA_SOURCES
 		api.cpp
 		core.cpp
-		hid.cpp)
+		hid.cpp
+		render.cpp)
 
 set(
 		FAROELA_HEADERS
 		core.hpp
 		delegate.hpp
 		hid.hpp
-		platform.hpp)
+		platform.hpp
+		render.hpp)
 
 list(TRANSFORM FAROELA_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
 list(TRANSFORM FAROELA_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)
@@ -42,6 +44,6 @@ set_target_properties(
 		CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries(faroela PUBLIC faroela-common faroela-api)
-target_link_libraries(faroela PRIVATE Tracy::TracyClient libuv::libuv unordered_dense function-ref)
+target_link_libraries(faroela PRIVATE Tracy::TracyClient libuv::libuv unordered_dense function-ref bgfx)
 
 cxx_default_diagnostics(faroela)

@@ -85,6 +85,8 @@ def generate_cxx(f, api):
 				parameter = 'void*'
 			elif parameter == 'context':
 				parameter = 'context*'
+			elif parameter == 'uint':
+				parameter = 'unsigned'
 			elif parameter == 'bool':
 				parameter = 'link_bool'
 			elif parameter == 'string':

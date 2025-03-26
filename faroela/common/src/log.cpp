@@ -6,6 +6,7 @@
 namespace faroela::common {
 	using common::logger;
 
+	// TODO: `make_shared` should have nothrow wrapper like `make_unique`.
 	void register_default_loggers(const spdlog::filename_t& file) {
 		auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file, true);
 		file_sink->set_level(spdlog::level::trace);

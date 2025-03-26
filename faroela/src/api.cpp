@@ -22,7 +22,7 @@ namespace faroela::api {
 extern "C" {
 	namespace faroela::api {
 		// TODO: Make common root API error state/log handover.
-		FAROELA_COMMON_EXPORT link_bool faroela_initialize(faroela::context** ctx, [[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+		FAROELA_COMMON_EXPORT link_bool faroela_initialize(faroela::context** ctx, int, char**) {
 			const auto result = faroela::context::initialize();
 
 			*ctx = result ? *result : nullptr;
@@ -52,6 +52,20 @@ extern "C" {
 
 		FAROELA_COMMON_EXPORT link_bool faroela_hid_axis_event(faroela::context* ctx, hid_port port, hid_axis axis, float value) {
 			return handle_result(ctx, ctx->submit<faroela::hid_axis_event>("hid", ctx->hid.axis_callback, port, axis, value));
+		}
+
+		FAROELA_COMMON_EXPORT link_bool faroela_render_attach(faroela::context* ctx, void* handle, void* connection, void* context) {
+			return handle_result(ctx, ctx->render.attach(handle, connection, context));
+		}
+
+		FAROELA_COMMON_EXPORT link_bool faroela_render_clip(faroela::context* ctx, int x, int y, unsigned width, unsigned height) {
+			ctx->render.clip(x, y, width, height);
+
+			return true;
+		}
+
+		FAROELA_COMMON_EXPORT link_bool faroela_render_update(faroela::context* ctx, link_bool wait) {
+			return handle_result(ctx, ctx->render.update(!!wait));
 		}
 	}
 }

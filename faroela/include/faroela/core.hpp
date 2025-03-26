@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <faroela/hid.hpp>
 #include <faroela/delegate.hpp>
 
-#include <faroela/common/result.hpp>
+#include <faroela/hid.hpp>
+#include <faroela/render.hpp>
 
-#include <uv.h>
+#include <faroela/common/result.hpp>
 
 namespace faroela {
 	class context {
@@ -30,28 +30,20 @@ namespace faroela {
 
 	public:
 		hid_system hid;
+		render_system render;
 
 	public:
+		// TODO: These should be changed to the standard `create`+destructor instead of this.
 		[[nodiscard]]
 		static result<context*> initialize();
 		static void shutdown(context*&);
-
-		// TODO: Move out to dedicated handle class once we have one.
-		static void handle_close(uv_handle_t* handle) noexcept {
-			// TODO: This is a mess -- we may need to move to C-style allocation functions for handles
-			// 		 Because new/delete expect type matches otherwise you get delete size mismatch.
-			if(handle->type == UV_IDLE) delete reinterpret_cast<uv_idle_t*>(handle);
-			else if(handle->type == UV_ASYNC) delete reinterpret_cast<uv_async_t*>(handle);
-			else {
-				spdlog::get("faroela")->critical("Cannot delete unexpected handle type '{}'", magic_enum::enum_name(handle->type));
-			}
-		}
 
 	private:
 		[[nodiscard]]
 		result<system_ref> get_system(std::string_view);
 
-		static void async_callback_decl(uv_async_t*) noexcept {}
+		// NOTE: Need this workaround to have `noexcept` on `uv_async_cb` params.
+		static void async_callback_decl(uv_handle_t*) noexcept {}
 		using async_callback = decltype(async_callback_decl)*;
 
 		[[nodiscard]]
@@ -60,15 +52,15 @@ namespace faroela {
 	public:
 		template<typename event_type>
 		[[nodiscard]]
-		result<void> submit(std::string_view system, delegate<event_type>* pass) {
-			return submit(system, pass, delegate<event_type>::call);
+		result<void> submit(std::string_view system, delegate<event_type, true>* pass) {
+			return submit(system, pass, delegate<event_type, true>::call);
 		}
 
 		template<typename event_type, typename... args>
-		requires common::is_list_constructible<event_type, args...>
+		requires(common::is_list_constructible<event_type, args...>)
 		[[nodiscard]]
-		result<void> submit(std::string_view system, delegate<event_type>::callable callable, args&&... v) {
-			const auto instance = delegate<event_type>::create(callable, std::forward<args>(v)...);
+		result<void> submit(std::string_view system, delegate<event_type, true>::callable callable, args&&... v) {
+			const auto instance = delegate<event_type, true>::create(callable, std::forward<args>(v)...);
 			if(!instance) [[unlikely]] {
 				return forward(instance);
 			}
@@ -77,6 +69,10 @@ namespace faroela {
 		}
 
 		[[nodiscard]]
-		result<void> add_event_system(std::string_view);
+		result<void> add_system(std::string_view);
+
+		// TODO: Add tracking system for removing idlers during runtime.
+		[[nodiscard]]
+		result<void> add_idler(std::string_view, delegate<delegate_dummy, false>*);
 	};
 }

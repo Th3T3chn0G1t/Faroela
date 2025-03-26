@@ -2,6 +2,7 @@
 
 # TODO: More of these can be optional -- use less optimal impls in older cmake.
 # `add_custom_command(BYPRODUCTS)`: 3.2
+# `add_dependencies(<interface>)`: 3.3
 # `if(VERSION_GREATER_EQUAL)`: 3.7
 # `cmake_policy(CMP0069)`/`check_ipo_supported()`: 3.9
 # `string(PREPEND)`: 3.10

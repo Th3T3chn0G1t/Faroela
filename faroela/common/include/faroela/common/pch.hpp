@@ -25,6 +25,7 @@
 #include <variant>
 
 #include <cstdlib>
+#include <cstddef>
 
 #ifdef __APPLE__
 # include <TargetConditionals.h>
@@ -47,8 +48,14 @@ namespace faroela::common {
 	};
 
 	// NOTE: From https://stackoverflow.com/a/57092496.
-	template <class type, class... args>
+	template<typename type, typename... args>
 	std::unique_ptr<type> make_unique(std::nothrow_t, args&&... v) noexcept(noexcept(type(std::forward<args>(v)...))) {
 		return std::unique_ptr<type>(new(std::nothrow) type(std::forward<args>(v)...));
+	}
+
+	// NOTE: Only for allocating aggregate types. Clean up with `free`.
+	template<typename type>
+	type* typed_alloc() {
+		return static_cast<type*>(malloc(sizeof(type)));
 	}
 }

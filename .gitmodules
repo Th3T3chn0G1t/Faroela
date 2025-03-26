@@ -35,9 +35,21 @@
 	url = https://github.com/martinus/unordered_dense
 	shallow = true
 	ignore = dirty
+
 [submodule "faroela/vendor/function_ref"]
 	path = faroela/vendor/function_ref
 	url = https://github.com/TartanLlama/function_ref
+	shallow = true
+	ignore = dirty
+
 [submodule "faroela/common/vendor/eternal"]
 	path = faroela/common/vendor/eternal
 	url = https://github.com/mapbox/eternal
+	shallow = true
+	ignore = dirty
+
+[submodule "faroela/vendor/bgfx"]
+	path = faroela/vendor/bgfx
+	url = https://github.com/bkaradzic/bgfx.cmake
+	shallow = true
+	ignore = dirty
