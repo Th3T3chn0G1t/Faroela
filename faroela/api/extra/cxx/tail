@@ -4,6 +4,6 @@
 template<>
 struct magic_enum::customize::enum_range<faroela::api::hid_button> {
 	static constexpr int min = 0;
-	static constexpr int max = faroela::api::button_max;
+	static constexpr int max = magic_enum::enum_integer(faroela::api::hid_button::max);
 };
 #endif

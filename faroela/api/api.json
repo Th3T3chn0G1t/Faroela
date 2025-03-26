@@ -22,7 +22,7 @@
 			"gamecon2": 3,
 			"gamecon3": 4,
 
-			"port_max": "gamecon3"
+			"max": "gamecon3"
 		},
 
 		"hid_button": {
@@ -167,7 +167,7 @@
 			"gamecon_dpad_down": 13,
 			"gamecon_dpad_left": 14,
 
-			"button_max": "key_menu"
+			"max": "key_menu"
 		},
 
 		"hid_axis": {
@@ -182,32 +182,23 @@
 			"gamecon_left_trigger": 4,
 			"gamecon_right_trigger": 5,
 
-			"axis_max": "gamecon_right_trigger"
+			"max": "gamecon_right_trigger"
 		}
 	},
 
 	// All return values are assumed to be bool
 	"functions": {
 		// TODO: It's unclear whether C# will marshal this correctly.
-		"initialize": [ "context**", "int", "string*" ],
-		"shutdown": [ "context**" ],
+		"initialize": [ "context*", "int", "string*" ],
+		"shutdown": [ "context*" ],
 
-		"log": [ "context*", "verbosity", "const_string" ],
+		"log": [ "context", "verbosity", "const_string" ],
 
-		"hid_status": [ "context*", "hid_port", "bool" ],
-		"hid_button_event": [ "context*",  "hid_port",  "hid_button",  "bool" ],
-		"hid_axis_event": [ "context*",  "hid_port",  "hid_axis",  "float" ],
+		"hid_status": [ "context", "hid_port", "bool" ],
+		"hid_button_event": [ "context",  "hid_port",  "hid_button",  "bool" ],
+		"hid_axis_event": [ "context",  "hid_port",  "hid_axis",  "float" ],
 
-		"screen_attach": [ "context*",  "pointer" ],
-		"screen_clip": [ "context*",  "int",  "int",  "int",  "int" ]
-	},
-
-	"extra": {
-		"head": {
-			"c++": "extra/cpp_head.hpp"
-		},
-		"tail": {
-			"c++": "extra/cpp_tail.hpp"
-		}
+		"screen_attach": [ "context",  "pointer" ],
+		"screen_clip": [ "context",  "int",  "int",  "int",  "int" ]
 	}
 }

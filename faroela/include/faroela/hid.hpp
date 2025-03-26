@@ -26,8 +26,8 @@ namespace faroela {
 
 	class hid_state {
 	private:
-		std::array<bool, faroela::api::button_max> buttons{};
-		std::array<float, faroela::api::axis_max> axes{};
+		std::array<bool, magic_enum::enum_integer(faroela::api::hid_button::max)> buttons{};
+		std::array<float, magic_enum::enum_integer(faroela::api::hid_axis::max)> axes{};
 
 	public:
 		void set_button(faroela::api::hid_button, bool);
@@ -36,7 +36,7 @@ namespace faroela {
 
 	class hid_system {
 	public:
-		std::array<std::optional<hid_state>, faroela::api::port_max> hid_states;
+		std::array<std::optional<hid_state>, magic_enum::enum_integer(faroela::api::hid_port::max)> hid_states;
 
 		// TODO: Since this basically just acts as a store -- these don't need to be std::function; just a temporary fix.
 		std::function<void(hid_status_event&)> status_callback;

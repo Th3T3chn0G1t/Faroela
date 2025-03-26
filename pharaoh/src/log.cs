@@ -12,10 +12,10 @@ public class Log
 		set;
 	}
 
-	public static void Trace(string message) => Faroela.Log(Context, Faroela.TRACE, message);
-	public static void Debug(string message) => Faroela.Log(Context, Faroela.DEBUG, message);
-	public static void Info(string message) => Faroela.Log(Context, Faroela.INFO, message);
-	public static void Warning(string message) => Faroela.Log(Context, Faroela.WARNING, message);
-	public static void Error(string message) => Faroela.Log(Context, Faroela.ERROR, message);
-	public static void Critical(string message) => Faroela.Log(Context, Faroela.CRITICAL, message);
+	public static void Trace(string message) => Faroela.Log(Context, Faroela.Verbosity.Trace, message);
+	public static void Debug(string message) => Faroela.Log(Context, Faroela.Verbosity.Debug, message);
+	public static void Info(string message) => Faroela.Log(Context, Faroela.Verbosity.Info, message);
+	public static void Warning(string message) => Faroela.Log(Context, Faroela.Verbosity.Warning, message);
+	public static void Error(string message) => Faroela.Log(Context, Faroela.Verbosity.Error, message);
+	public static void Critical(string message) => Faroela.Log(Context, Faroela.Verbosity.Critical, message);
 }

@@ -8,7 +8,7 @@
 
 namespace sphinx {
 	static result<void> start(faroela::context* ctx) {
-		faroela::api::faroela_log(ctx, faroela::api::info, "Hello, Sphinx!");
+		faroela::api::faroela_log(ctx, faroela::api::verbosity::info, "Hello, Sphinx!");
 
 		auto result = initialize_screen_environment();
 		if(!result) [[unlikely]] {
@@ -22,7 +22,7 @@ namespace sphinx {
 
 		auto primary = std::find_if(monitors->begin(), monitors->end(), [&](auto& monitor) { return monitor.primary; });
 		if(primary == monitors->end()) {
-			faroela::api::faroela_log(ctx, faroela::api::error, "Could not determine primary monitor, assuming index 0");
+			faroela::api::faroela_log(ctx, faroela::api::verbosity::error, "Could not determine primary monitor, assuming index 0");
 			primary = monitors->begin();
 		}
 
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 	auto result = sphinx::start(ctx);
 	if(!result) {
 		// TODO: Simple log wrapper on Sphinx side.
-		faroela::api::faroela_log(ctx, faroela::api::error, std::format("{}", result).data());
+		faroela::api::faroela_log(ctx, faroela::api::verbosity::error, std::format("{}", result).data());
 	}
 
 	faroela::api::faroela_shutdown(&ctx);

@@ -14,15 +14,18 @@ set_target_properties(
 		OUTPUT_NAME faroela
 		PREFIX "")
 
+set(PHARAOH_GENERATED ${CMAKE_CURRENT_LIST_DIR}/src/faroela.cs)
+faroela_api_generate(cs ${PHARAOH_GENERATED})
+
 ExternalProject_Add(
 		pharaoh
 		CONFIGURE_COMMAND ""
 		INSTALL_COMMAND ""
-		DEPENDS faroela-module
+		DEPENDS faroela-module faroela-api-generated-cs
 		SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}
 		BUILD_ALWAYS true
 		BUILD_COMMAND
-		dotnet build ${CMAKE_CURRENT_LIST_DIR}/pharaoh.csproj
-		--artifacts-path ${PHARAOH_BINDIR}
-		--output ${PHARAOH_BINDIR}
-		--self-contained $<IF:$<CONFIG:Debug>,true,false>)
+			dotnet build ${CMAKE_CURRENT_LIST_DIR}/pharaoh.csproj
+			--artifacts-path ${PHARAOH_BINDIR}
+			--output ${PHARAOH_BINDIR}
+			--self-contained $<IF:$<CONFIG:Debug>,true,false>)

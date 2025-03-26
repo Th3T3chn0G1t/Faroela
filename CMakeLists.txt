@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 # TODO: More of these can be optional -- use less optimal impls in older cmake.
-# <fallback from CMP0163> `add_dependencies(<interface>)`: 3.3
+# `add_custom_command(BYPRODUCTS)`: 3.2
 # `if(VERSION_GREATER_EQUAL)`: 3.7
 # `cmake_policy(CMP0069)`/`check_ipo_supported()`: 3.9
 # `string(PREPEND)`: 3.10
@@ -11,8 +11,10 @@
 # `target_link_options()`: 3.13
 # `cmake_policy(CMP0077)`: 3.13
 # `target_precompile_headers()`: 3.16
+# `CMAKE_CURRENT_FUNCTION_LIST_DIR`: 3.17
 # `cmake_language()`: 3.18
 # `target_compile_features(cxx_std_23)`: 3.20
+# `cmake_policy(CMP0118)`: 3.20
 # `CMAKE_GENERATOR "Visual Studio 17 2022"`: 3.21
 # `$<LINK_LIBRARY:WHOLE_ARCHIVE>`: 3.24
 # <optional> `Python3_INTERPRETER`: 3.30
@@ -26,9 +28,12 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.31")
 endif()
 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
-	# Allow `GENERATED` source property to propogate between dirs.
+	# The GENERATED source file property is now visible in all directories.
 	cmake_policy(SET CMP0163 NEW)
 endif()
+
+# Allow `GENERATED` source property to propagate between dirs.
+cmake_policy(SET CMP0118 NEW)
 
 # Enforce IPO when set.
 cmake_policy(SET CMP0069 NEW)

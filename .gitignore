@@ -11,5 +11,6 @@ obj
 *.user
 
 faroela/api/include/faroela/api/faroela.hpp
+pharaoh/src/faroela.cs
 
 *.log
