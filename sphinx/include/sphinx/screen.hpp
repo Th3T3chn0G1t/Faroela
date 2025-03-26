@@ -88,9 +88,6 @@ namespace sphinx {
 		void* data;
 
 	public:
-		// NOTE: This should not be invoked directly -- use the `create` factory function instead.
-		screen(graphics_mode m, faroela::context* c, void* p) : mode(m), ctx(c), data(p) {}
-
 		[[nodiscard]]
 		static result<std::unique_ptr<screen>> create(faroela::context*, const graphics_mode&);
 

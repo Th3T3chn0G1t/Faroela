@@ -218,11 +218,15 @@ namespace sphinx {
 			return forward(glfw_known_error());
 		}
 
-		auto retval = faroela::common::make_unique<screen>(std::nothrow, mode, ctx, window);
+		auto retval = faroela::common::make_unique<screen>(std::nothrow);
 		if(!retval) [[unlikely]] {
 			// TODO: Clean up dead init state.
 			return unexpect("failed to allocate screen", error_code::out_of_memory);
 		}
+
+		retval->mode = mode;
+		retval->ctx = ctx;
+		retval->data = window;
 
 		glfwSetWindowUserPointer(window, retval.get());
 		result = glfw_error();
