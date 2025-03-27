@@ -53,3 +53,9 @@
 	url = https://github.com/bkaradzic/bgfx.cmake
 	shallow = true
 	ignore = dirty
+
+[submodule "faroela/vendor/entt"]
+	path = faroela/vendor/entt
+	url = https://github.com/skypjack/entt
+	shallow = true
+	ignore = dirty

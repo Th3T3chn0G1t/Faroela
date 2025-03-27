@@ -23,6 +23,7 @@ namespace faroela {
 	void render_system::clip(int x, int y, unsigned width, unsigned height) {
 		offset = { { x, y } };
 		resolution = { { width, height } };
+		// TODO: Need to send Rect/Scissor event command if RT is started.
 	}
 
 	result<void> render_system::attach(void* handle, void* connection, void* context) {
