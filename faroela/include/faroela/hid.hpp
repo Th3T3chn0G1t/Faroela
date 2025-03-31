@@ -26,14 +26,9 @@ namespace faroela {
 		float value;
 	};
 
-	class hid_state {
-	private:
+	struct hid_state {
 		std::array<bool, magic_enum::enum_integer(faroela::api::hid_button::max)> buttons{};
 		std::array<float, magic_enum::enum_integer(faroela::api::hid_axis::max)> axes{};
-
-	public:
-		void set_button(faroela::api::hid_button, bool);
-		void set_axis(faroela::api::hid_axis, float);
 	};
 
 	class hid_system {
