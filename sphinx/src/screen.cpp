@@ -337,9 +337,14 @@ namespace sphinx {
 
 		faroela::api::faroela_hid_status(ctx, faroela::api::hid_port::desktop, true);
 
-		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods) noexcept {
+		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int, int action, int) noexcept {
 			if(key < 0) {
-				// Ignore unknown keys.
+				// TODO: We currently ignore unknown keys -- we should pass these on somehow so that unknown keys can still be mapped by the user.
+				return;
+			}
+
+
+			if(action == GLFW_REPEAT) {
 				return;
 			}
 
