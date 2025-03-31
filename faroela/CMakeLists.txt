@@ -14,7 +14,8 @@ set(
 		api.cpp
 		core.cpp
 		hid.cpp
-		render.cpp)
+		render.cpp
+		vfs.cpp)
 
 set(
 		FAROELA_HEADERS
@@ -22,7 +23,8 @@ set(
 		delegate.hpp
 		hid.hpp
 		platform.hpp
-		render.hpp)
+		render.hpp
+		vfs.hpp)
 
 list(TRANSFORM FAROELA_SOURCES PREPEND ${CMAKE_CURRENT_LIST_DIR}/src/)
 list(TRANSFORM FAROELA_HEADERS PREPEND ${CMAKE_CURRENT_LIST_DIR}/include/faroela/)

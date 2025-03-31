@@ -55,7 +55,11 @@ namespace faroela {
 		if(!result) {
 			return forward(result);
 		}
-		ctx->render = std::move(*render);
+
+		result = vfs_system::create(ctx, false, ctx->vfs);
+		if(!result) {
+			return forward(result);
+		}
 
 		ctx->logger->info("Done. (Took {})", time.elapsed_ms());
 

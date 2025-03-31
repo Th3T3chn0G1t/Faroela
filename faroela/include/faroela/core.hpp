@@ -6,6 +6,7 @@
 
 #include <faroela/hid.hpp>
 #include <faroela/render.hpp>
+#include <faroela/vfs.hpp>
 
 #include <faroela/common/result.hpp>
 
@@ -30,6 +31,7 @@ namespace faroela {
 
 	public:
 		hid_system hid;
+		vfs_system vfs;
 		render_system render;
 
 	private:
