@@ -4,6 +4,8 @@
 
 #include <faroela/api/faroela.hpp>
 
+// TODO: Sphinx should probably be using SDL instead of GLFW given our portability goals.
+//		 This current impl. is mostly just PoC to get stuff working and will be replaced.
 #include <GLFW/glfw3.h>
 #ifdef _WIN32
 // NOTE: This is a bit dodgy but saves us needing to drag in all of Win32 for 2 types.

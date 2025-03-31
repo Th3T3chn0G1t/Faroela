@@ -12,19 +12,19 @@ namespace faroela {
 		axes[static_cast<unsigned>(magic_enum::enum_integer(axis))] = value;
 	}
 
-	result<hid_system> hid_system::create(context* ctx) {
-		hid_system retval;
+	result<void> hid_system::create(context* ctx, hid_system& hid) {
+		hid.ctx = ctx;
 
-		retval.status_callback = [ctx](auto event) {
-			ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
+		hid.status_callback = [&hid](auto& event) {
+			hid.ctx->logger->info("HID port '{}' {}", magic_enum::enum_name(event.port), event.connected ? "connected" : "disconnected");
 		};
 
-		retval.button_callback = [ctx](auto event) {
-			ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
+		hid.button_callback = [&hid](auto& event) {
+			hid.ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
 		};
 
-		retval.axis_callback = [ctx](auto event) {
-			ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
+		hid.axis_callback = [&hid](auto& event) {
+			hid.ctx->logger->info("HID port '{}' axis '{}' at '{}'", magic_enum::enum_name(event.port), magic_enum::enum_name(event.axis), event.value);
 		};
 
 		auto result = ctx->add_system("hid");
@@ -32,6 +32,6 @@ namespace faroela {
 			return forward(result);
 		}
 
-		return retval;
+		return {};
 	}
 }

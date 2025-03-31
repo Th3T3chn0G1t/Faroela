@@ -37,6 +37,9 @@ namespace faroela {
 	};
 
 	class hid_system {
+	private:
+		context* ctx;
+
 	public:
 		std::array<std::optional<hid_state>, magic_enum::enum_integer(faroela::api::hid_port::max)> hid_states;
 
@@ -46,6 +49,15 @@ namespace faroela {
 		std::function<void(hid_axis_event&)> axis_callback;
 
 	public:
-		static result<hid_system> create(context*);
+		hid_system() = default;
+
+		static result<void> create(context*, hid_system&);
+
+	public:
+		hid_system(const hid_system&) = delete; // copy constructor
+		hid_system& operator=(const hid_system&) = delete; // copy assignment
+
+		hid_system(hid_system&&) = delete; // move constructor
+		hid_system& operator=(hid_system&&) noexcept = delete; // move assignment
 	};
 }

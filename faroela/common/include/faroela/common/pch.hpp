@@ -19,6 +19,7 @@
 #include <optional>
 #include <source_location>
 #include <span>
+#include <string>
 #include <string_view>
 #include <system_error>
 #include <utility>

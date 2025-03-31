@@ -55,13 +55,11 @@ extern "C" {
 		}
 
 		FAROELA_COMMON_EXPORT link_bool faroela_render_attach(faroela::context* ctx, void* handle, void* connection, void* context) {
-			return handle_result(ctx, ctx->render.attach(handle, connection, context));
+			return handle_result(ctx, ctx->submit<faroela::render_attach_event>("render", ctx->render.attach_callback, handle, connection, context));
 		}
 
 		FAROELA_COMMON_EXPORT link_bool faroela_render_clip(faroela::context* ctx, int x, int y, unsigned width, unsigned height) {
-			ctx->render.clip(x, y, width, height);
-
-			return true;
+			return handle_result(ctx, ctx->submit<faroela::render_clip_event>("render", ctx->render.clip_callback, x, y, width, height));
 		}
 
 		FAROELA_COMMON_EXPORT link_bool faroela_render_update(faroela::context* ctx, link_bool wait) {

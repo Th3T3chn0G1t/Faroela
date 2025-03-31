@@ -37,20 +37,23 @@ namespace faroela {
 
 		ctx->logger->info("Initializing...");
 
+		// TODO: libuv has some optional bespoke init/teardown we should probably have here:
+		//		 `uv_setup_args`, `uv_library_shutdown` etc.
+		//		 From here: https://docs.libuv.org/en/v1.x/misc.html.
+
 		int libuv_result = uv_thread_setname("main");
 		if(libuv_result < 0) [[unlikely]] {
 			ctx->logger->error("{}", libuv_error(libuv_result));
 		}
 
-		auto hid = hid_system::create(ctx);
-		if(!hid) {
-			return forward(hid);
+		result = hid_system::create(ctx, ctx->hid);
+		if(!result) {
+			return forward(result);
 		}
-		ctx->hid = std::move(*hid);
 
-		auto render = render_system::create(ctx);
-		if(!render) {
-			return forward(render);
+		result = render_system::create(ctx, ctx->render);
+		if(!result) {
+			return forward(result);
 		}
 		ctx->render = std::move(*render);
 

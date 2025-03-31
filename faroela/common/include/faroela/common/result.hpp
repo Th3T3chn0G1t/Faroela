@@ -8,7 +8,8 @@ namespace faroela::common {
 		unknown_error,
 		out_of_memory,
 		key_not_found,
-		key_exists
+		key_exists,
+		not_implemented
 	};
 
 	struct error {

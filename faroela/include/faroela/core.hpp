@@ -32,16 +32,23 @@ namespace faroela {
 		hid_system hid;
 		render_system render;
 
+	private:
+		context() = default;
+
 	public:
 		// TODO: These should be changed to the standard `create`+destructor instead of this.
 		[[nodiscard]]
 		static result<context*> initialize();
 		static void shutdown(context*&);
 
-	private:
-		[[nodiscard]]
-		result<system_ref> get_system(std::string_view);
+	public:
+		context(const context&) = delete; // copy constructor
+		context& operator=(const context&) = delete; // copy assignment
 
+		context(context&&) = delete; // move constructor
+		context& operator=(context&&) noexcept = delete; // move assignment
+
+	private:
 		// NOTE: Need this workaround to have `noexcept` on `uv_async_cb` params.
 		static void async_callback_decl(uv_handle_t*) noexcept {}
 		using async_callback = decltype(async_callback_decl)*;
@@ -50,6 +57,9 @@ namespace faroela {
 		result<void> submit(std::string_view, void*, async_callback);
 
 	public:
+		[[nodiscard]]
+		result<system_ref> get_system(std::string_view);
+
 		template<typename event_type>
 		[[nodiscard]]
 		result<void> submit(std::string_view system, delegate<event_type, true>* pass) {
