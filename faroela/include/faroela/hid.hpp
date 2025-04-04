@@ -46,6 +46,7 @@ namespace faroela {
 	public:
 		hid_system() = default;
 
+		[[nodiscard]]
 		static result<void> create(context*, hid_system&);
 
 	public:

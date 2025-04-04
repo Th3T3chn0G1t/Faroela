@@ -13,6 +13,8 @@ namespace faroela::common {
 
 #ifdef _WIN32
 		auto debug_sink = std::make_shared<spdlog::sinks::msvc_sink<std::mutex>>(true);
+#ifndef NDEBUG
+		console->set_level(spdlog::level::trace);
 #endif
 
 		auto create_named_logger = [&](std::string_view name) {

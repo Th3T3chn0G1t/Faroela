@@ -22,7 +22,7 @@ namespace faroela {
 		//		 To be synchronous. Possibly one system per-archive to avoid lockups.
 		//		 See `zip_source_file_common.c:read_file` for "expected" source behaviour.
 		auto result = ctx->add_system("vfs");
-		if(!result) {
+		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 

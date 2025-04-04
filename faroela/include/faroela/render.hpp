@@ -22,11 +22,11 @@ namespace faroela {
 		unsigned height;
 	};
 
-	// TODO: This needs a destructor to destroy worker.
 	class render_system {
 	private:
 		context* ctx;
 
+		uv_idle_t* idle_handle;
 		delegate<delegate_dummy, false>* worker;
 
 		std::array<int, 2> offset;
@@ -37,11 +37,16 @@ namespace faroela {
 		std::function<void(delegate_dummy&)> idle_callback;
 		std::function<void(render_attach_event&)> attach_callback;
 		std::function<void(render_clip_event&)> clip_callback;
+		std::function<void(delegate_dummy&)> shutdown_callback;
 
 	public:
 		render_system() = default;
 
+		[[nodiscard]]
 		static result<void> create(context*, render_system&);
+
+		[[nodiscard]]
+		result<void> destroy();
 
 	public:
 		render_system(const render_system&) = delete; // copy constructor
@@ -52,6 +57,7 @@ namespace faroela {
 
 	public:
 		// NOTE: Must be called from main thread.
+		[[nodiscard]]
 		result<void> update(bool = true);
 	};
 }

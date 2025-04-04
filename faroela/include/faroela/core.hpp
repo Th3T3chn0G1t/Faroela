@@ -11,23 +11,28 @@
 #include <faroela/common/result.hpp>
 
 namespace faroela {
+	[[nodiscard]]
+	inline faroela::common::unexpected libuv_error(int code, std::source_location location = std::source_location::current()) {
+		// TODO: Pass through `uv_err_name_r`.
+		return unexpect(uv_strerror(code), error_code::unknown_error, location);
+	}
+
 	class context {
 	public:
 		std::shared_ptr<spdlog::logger> logger, api_logger, client_logger;
 
 	private:
-		using loop_ptr = std::unique_ptr<uv_loop_t>;
-
 		struct system {
-			loop_ptr loop;
+			uv_loop_t loop;
 			uv_thread_t thread;
+			uv_idle_t idle;
 		};
 
 		using system_ref = std::reference_wrapper<system>;
 
 		// TODO: This only expects to hold static strings for now -- but we may need to
 		//		 revisit this if we allow the client to register their own event systems.
-		unordered_dense::map<std::string_view, system> event_systems;
+		unordered_dense::map<std::string_view, std::unique_ptr<system>> event_systems;
 
 	public:
 		hid_system hid;
@@ -85,6 +90,9 @@ namespace faroela {
 
 		// TODO: Add tracking system for removing idlers during runtime.
 		[[nodiscard]]
-		result<void> add_idler(std::string_view, delegate<delegate_dummy, false>*);
+		result<uv_idle_t*> add_idler(std::string_view, delegate<delegate_dummy, false>*);
+
+		[[nodiscard]]
+		result<void> remove_idler(uv_idle_t*);
 	};
 }

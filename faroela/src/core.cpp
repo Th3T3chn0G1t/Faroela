@@ -8,12 +8,6 @@
 #include <tracy/Tracy.hpp>
 
 namespace faroela {
-	[[nodiscard]]
-	constexpr inline faroela::common::unexpected libuv_error(int code, std::source_location location = std::source_location::current()) {
-		// TODO: Pass through `uv_err_name_r`.
-		return unexpect(uv_strerror(code), error_code::unknown_error, location);
-	}
-
 	// TODO: Distinguish between context-specific startup/teardown and global
 	//		 startup/teardown.
 	result<context*> context::initialize() {
@@ -47,17 +41,17 @@ namespace faroela {
 		}
 
 		result = hid_system::create(ctx, ctx->hid);
-		if(!result) {
+		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
 		result = render_system::create(ctx, ctx->render);
-		if(!result) {
+		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
 		result = vfs_system::create(ctx, false, ctx->vfs);
-		if(!result) {
+		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
@@ -66,42 +60,56 @@ namespace faroela {
 		return ctx;
 	}
 
+	// TODO: This should have error states.
 	void context::shutdown(context*& ctx) {
 		spdlog::stopwatch time;
 
 		const auto logger = ctx->logger;
 		logger->info("Shutting down...");
 
+		auto result = ctx->render.destroy();
+		if(!result) [[unlikely]] {
+			logger->error("{}", result);
+		}
+
 		for(auto& system : ctx->event_systems) {
-			auto loop = system.second.loop.get();
-			unsigned shutdown_tries = 0;
+			auto& loop = system.second->loop;
 
-		again:
-			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
-			uv_walk(loop, [](uv_handle_t* handle, void*) noexcept {
-				uv_close(handle, reinterpret_cast<uv_close_cb>(free));
-			}, nullptr);
+			logger->trace("Closing system '{}'", system.first);
 
-			uv_stop(loop);
-
-			// TODO: Set up a timer signal to timeout joins here to give up on loop closure.
-			// TODO: This sometimes hangs with the loop having a spare handle ref.
-			int libuv_result = uv_thread_join(&system.second.thread);
+			// NOTE: System-specific idlers need to be removed like the above render teardown.
+			int libuv_result = uv_idle_stop(&system.second->idle);
 			if(libuv_result < 0) [[unlikely]] {
-				// TODO: Remove the emplaced member -- we should init the loop first then move it into the map.
 				logger->error("{}", libuv_error(libuv_result));
 			}
 
-			libuv_result = uv_loop_close(loop);
+			// TODO: Set up a timer signal to timeout joins here to give up on loop closure.
+			// TODO: This sometimes hangs with the loop having a spare handle ref.
+			libuv_result = uv_thread_join(&system.second->thread);
 			if(libuv_result < 0) [[unlikely]] {
-				// TODO: Is this necessary?
-				if(libuv_result == UV_EBUSY) {
-					// TODO: Configurable?
-					if(++shutdown_tries == 3) {
-						logger->critical("Could not close event loop '{}' -- skipping...", system.first);
-					}
+				logger->error("{}", libuv_error(libuv_result));
+			}
 
-					goto again;
+			// See https://stackoverflow.com/questions/25615340/closing-libuv-handles-correctly.
+			uv_walk(&loop, [](uv_handle_t* handle, void* p) noexcept {
+				auto ctx = static_cast<context*>(p);
+
+				// TODO: The default idler seems to retain a ref by here? This hack leaks.
+				if(handle->type == UV_IDLE) {
+					ctx->logger->warn("Unref hack for dangling idle handle");
+					uv_unref(handle);
+					return;
+				}
+
+				uv_close(handle, reinterpret_cast<uv_close_cb>(free));
+			}, ctx);
+
+			libuv_result = uv_loop_close(&loop);
+			if(libuv_result < 0) [[unlikely]] {
+				// TODO: This shouldn't be necessary once teardown logic is fixed.
+				if(libuv_result == UV_EBUSY) {
+					logger->critical("Could not close event loop '{}' -- skipping...", system.first);
+					continue;
 				}
 
 				logger->error("{}", libuv_error(libuv_result));
@@ -125,7 +133,7 @@ namespace faroela {
 		}
 #endif
 
-		return system_ref(it->second);
+		return system_ref(*it->second);
 	}
 
 	result<void> context::submit(std::string_view system_name, void* data, async_callback callback) {
@@ -142,7 +150,7 @@ namespace faroela {
 
 		// TODO: Disable exceptions globally and check all std interfaces. Should we clone with a libc++ we statically
 		//		 link so we can disable it from the root?
-		int libuv_result = uv_async_init(system->get().loop.get(), async, reinterpret_cast<uv_async_cb>(callback));
+		int libuv_result = uv_async_init(&system->get().loop, async, reinterpret_cast<uv_async_cb>(callback));
 		if(libuv_result < 0) [[unlikely]] {
 			uv_close(std::bit_cast<uv_handle_t*>(async), reinterpret_cast<uv_close_cb>(free));
 			return libuv_error(libuv_result);
@@ -161,36 +169,34 @@ namespace faroela {
 	}
 
 	result<void> context::add_system(std::string_view system_name) {
-		system system;
+		const auto& [ it, emplaced ] = event_systems.try_emplace(system_name, common::make_unique<system>(std::nothrow));
 
-		system.loop = common::make_unique<uv_loop_t>(std::nothrow);
-		if(!system.loop) [[unlikely]] {
-			return unexpect(std::format("failed to allocate event system '{}'", system_name), error_code::out_of_memory);
+#ifndef NDEBUG
+		if(!emplaced) [[unlikely]] {
+			// TODO: Free the loop -- a reason to compartmentalise loops (maybe RAII-y?) instead of homogenous [de-]init
+			//		 In ctx shutdown.
+			return unexpect(std::format("event system '{}' already registered", system_name), error_code::key_exists);
 		}
+#endif
 
-		auto loop = system.loop.get();
+		system& system = *it->second;
 
-		int libuv_result = uv_loop_init(loop);
+		int libuv_result = uv_loop_init(&system.loop);
 		if(libuv_result < 0) [[unlikely]] {
-			// TODO: Remove the emplaced member -- we should init the loop first then move it into the map.
+			// TODO: Remove the emplaced member.
 			return libuv_error(libuv_result);
 		}
 
 		// TODO: IO system will need UV_LOOP_ENABLE_IO_URING_SQPOLL set.
 #ifndef NDEBUG
-		libuv_result = uv_loop_configure(loop, UV_METRICS_IDLE_TIME);
+		libuv_result = uv_loop_configure(&system.loop, UV_METRICS_IDLE_TIME);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}
 #endif
 
-		auto idle_handle = common::typed_alloc<uv_idle_t>();
-		if(!idle_handle) [[unlikely]] {
-			return unexpect(std::format("failed to allocate handle when initializing event system '{}'", system_name), error_code::out_of_memory);
-		}
-
 		// TODO: Switch this default idler to use `add_idler`.
-		libuv_result = uv_idle_init(loop, idle_handle);
+		libuv_result = uv_idle_init(&system.loop, &system.idle);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}
@@ -202,7 +208,7 @@ namespace faroela {
 #endif
 		};
 
-		libuv_result = uv_idle_start(idle_handle, idle);
+		libuv_result = uv_idle_start(&system.idle, idle);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}
@@ -211,18 +217,20 @@ namespace faroela {
 			uv_loop_t* loop;
 			context* ctx;
 			std::string name;
-		}* pass = new(std::nothrow) thread_create_pass{ loop, this, std::string(system_name) };
+		}* pass = new(std::nothrow) thread_create_pass{ &system.loop, this, std::string(system_name) };
 
 		if(!pass) [[unlikely]] {
 			return unexpect(std::format("failed to allocate passthrough data when initializing event system '{}'", system_name), error_code::out_of_memory);
 		}
 
+		// TODO: Use idle-style delegate for threads and expose this API.
 		libuv_result = uv_thread_create(&system.thread, [](void* ptr) noexcept {
 			auto pass = static_cast<thread_create_pass*>(ptr);
+			auto logger = pass->ctx->logger;
 
 			int libuv_result = uv_thread_setname(pass->name.data());
 			if(libuv_result < 0) [[unlikely]] {
-				pass->ctx->logger->error("{}", libuv_error(libuv_result));
+				logger->error("{}", libuv_error(libuv_result));
 			}
 
 			auto loop = pass->loop;
@@ -231,7 +239,7 @@ namespace faroela {
 
 			libuv_result = uv_run(loop, UV_RUN_DEFAULT);
 			if(libuv_result < 0) [[unlikely]] {
-				pass->ctx->logger->error("{}", libuv_error(libuv_result));
+				logger->error("{}", libuv_error(libuv_result));
 			}
 		}, pass);
 
@@ -239,20 +247,10 @@ namespace faroela {
 			return libuv_error(libuv_result);
 		}
 
-		const auto& [ it, emplaced ] = event_systems.try_emplace(system_name, std::move(system));
-
-#ifndef NDEBUG
-		if(!emplaced) [[unlikely]] {
-			// TODO: Free the loop -- a reason to compartmentalise loops (maybe RAII-y?) instead of homogenous [de-]init
-			//		 In ctx shutdown.
-			return unexpect(std::format("event system '{}' already registered", system_name), error_code::key_exists);
-		}
-#endif
-
 		return {};
 	}
 
-	result<void> context::add_idler(std::string_view system_name, delegate<delegate_dummy, false>* idler) {
+	result<uv_idle_t*> context::add_idler(std::string_view system_name, delegate<delegate_dummy, false>* idler) {
 		auto system = get_system(system_name);
 		if(!system) [[unlikely]] {
 			return forward(system);
@@ -265,12 +263,21 @@ namespace faroela {
 
 		idle_handle->data = idler;
 
-		int libuv_result = uv_idle_init(system->get().loop.get(), idle_handle);
+		int libuv_result = uv_idle_init(&system->get().loop, idle_handle);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}
 
 		libuv_result = uv_idle_start(idle_handle, delegate<delegate_dummy, false>::call);
+		if(libuv_result < 0) [[unlikely]] {
+			return libuv_error(libuv_result);
+		}
+
+		return idle_handle;
+	}
+
+	result<void> context::remove_idler(uv_idle_t* idle) {
+		int libuv_result = uv_idle_stop(idle);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}

@@ -39,10 +39,12 @@ namespace faroela {
 			// TODO: This hangs if init fails on main thread -- need a way to run a single frame pump.
 			bgfx::init(init_data);
 
-			auto result = render.ctx->add_idler("render", render.worker);
-			if(!result) {
+			auto idler = render.ctx->add_idler("render", render.worker);
+			if(!idler) [[unlikely]] {
 				// TODO: EH?
 			}
+
+			render.idle_handle = *idler;
 		};
 
 		render.clip_callback = [&render](auto& event) {
@@ -51,15 +53,44 @@ namespace faroela {
 			// TODO: Need to send Rect/Scissor command if RT is started.
 		};
 
+		render.shutdown_callback = [](auto&) {
+			// TODO: Should we sync to ensure this has finished before proceeding to regular system teardown.
+			bgfx::shutdown();
+		};
+
 		auto result = ctx->add_system("render");
-		if(!result) {
+		if(!result) [[unlikely]] {
 			return forward(result);
 		}
 
 		return {};
 	}
 
+	result<void> render_system::destroy() {
+		auto result = ctx->remove_idler(idle_handle);
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		// TODO: Should this have its own timeout before forced terminate?
+		while(bgfx::renderFrame(0) == bgfx::RenderFrame::Render) {
+			continue;
+		}
+
+		result = ctx->submit<delegate_dummy>("render", shutdown_callback);
+		if(!result) [[unlikely]] {
+			return forward(result);
+		}
+
+		delete worker;
+
+		// TODO: Are unregistered uv_idle_t freed by core shutdown?
+
+		return {};
+	}
+
 	result<void> render_system::update(bool wait_frame) {
+		// TODO: More advanced sync rules for timing, and EH.
 		bgfx::renderFrame(wait_frame ? -1 : 0);
 
 		return {};

@@ -43,6 +43,7 @@ namespace faroela {
 	public:
 		vfs_system() = default;
 
+		[[nodiscard]]
 		static result<void> create(context*, bool, vfs_system&);
 
 	public:
@@ -54,7 +55,10 @@ namespace faroela {
 
 	public:
 		// NOTE: Sources are searched in the order they are added.
+		[[nodiscard]]
 		result<void> add_archive_source(std::string_view);
+
+		[[nodiscard]]
 		result<void> add_native_source(std::string_view);
 	};
 }
