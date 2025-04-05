@@ -46,6 +46,6 @@ set_target_properties(
 		CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries(faroela PUBLIC faroela-common faroela-api)
-target_link_libraries(faroela PRIVATE Tracy::TracyClient libuv::libuv unordered_dense function-ref bgfx EnTT)
+target_link_libraries(faroela PRIVATE Tracy::TracyClient libuv::libuv unordered_dense function-ref bgfx EnTT sol2::sol2)
 
 cxx_default_diagnostics(faroela)

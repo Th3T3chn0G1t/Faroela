@@ -59,3 +59,6 @@
 	url = https://github.com/libsdl-org/SDL
 	shallow = true
 	ignore = dirty
+[submodule "faroela/vendor/sol2"]
+	path = faroela/vendor/sol2
+	url = https://github.com/ThePhD/sol2
