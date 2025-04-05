@@ -67,17 +67,17 @@ namespace faroela {
 		[[nodiscard]]
 		result<system_ref> get_system(std::string_view);
 
-		template<typename event_type>
+		template<typename delegate_type>
 		[[nodiscard]]
-		result<void> submit(std::string_view system, delegate<event_type, true>* pass) {
-			return submit(system, pass, delegate<event_type, true>::call);
+		result<void> submit(std::string_view system, delegate_type* pass) {
+			return submit(system, pass, reinterpret_cast<async_callback>(delegate_type::call));
 		}
 
-		template<typename event_type, typename... args>
-		requires(common::is_list_constructible<event_type, args...>)
+		template<typename delegate_type, typename... args>
+		requires(common::is_list_constructible<typename delegate_type::event, args...>)
 		[[nodiscard]]
-		result<void> submit(std::string_view system, delegate<event_type, true>::callable callable, args&&... v) {
-			const auto instance = delegate<event_type, true>::create(callable, std::forward<args>(v)...);
+		result<void> submit(std::string_view system, delegate_type::callable callable, args&&... v) {
+			const auto instance = delegate_type::create(callable, std::forward<args>(v)...);
 			if(!instance) [[unlikely]] {
 				return forward(instance);
 			}
@@ -90,7 +90,7 @@ namespace faroela {
 
 		// TODO: Add tracking system for removing idlers during runtime.
 		[[nodiscard]]
-		result<uv_idle_t*> add_idler(std::string_view, delegate<delegate_dummy, false>*);
+		result<uv_idle_t*> add_idler(std::string_view, idle_delegate*);
 
 		[[nodiscard]]
 		result<void> remove_idler(uv_idle_t*);

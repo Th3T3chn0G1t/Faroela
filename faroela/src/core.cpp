@@ -244,7 +244,7 @@ namespace faroela {
 		return {};
 	}
 
-	result<uv_idle_t*> context::add_idler(std::string_view system_name, delegate<delegate_dummy, false>* idler) {
+	result<uv_idle_t*> context::add_idler(std::string_view system_name, idle_delegate* idler) {
 		auto system = get_system(system_name);
 		if(!system) [[unlikely]] {
 			return forward(system);
@@ -262,7 +262,7 @@ namespace faroela {
 			return libuv_error(libuv_result);
 		}
 
-		libuv_result = uv_idle_start(idle_handle, delegate<delegate_dummy, false>::call);
+		libuv_result = uv_idle_start(idle_handle, idle_delegate::call);
 		if(libuv_result < 0) [[unlikely]] {
 			return libuv_error(libuv_result);
 		}

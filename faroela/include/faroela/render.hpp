@@ -27,7 +27,7 @@ namespace faroela {
 		context* ctx;
 
 		uv_idle_t* idle_handle;
-		delegate<delegate_dummy, false>* worker;
+		idle_delegate* worker;
 
 		std::array<int, 2> offset;
 		std::array<unsigned, 2> resolution;

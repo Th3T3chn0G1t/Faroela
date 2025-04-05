@@ -16,7 +16,7 @@ namespace faroela {
 			bgfx::frame();
 		};
 
-		auto worker_result = delegate<delegate_dummy, false>::create(render.idle_callback);
+		auto worker_result = idle_delegate::create(render.idle_callback);
 		if(!worker_result) {
 			return forward(worker_result);
 		}
@@ -77,7 +77,7 @@ namespace faroela {
 			continue;
 		}
 
-		result = ctx->submit<delegate_dummy>("render", shutdown_callback);
+		result = ctx->submit<delegate<delegate_dummy>>("render", shutdown_callback);
 		if(!result) [[unlikely]] {
 			return forward(result);
 		}

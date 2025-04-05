@@ -4,6 +4,19 @@
 #include <faroela/core.hpp>
 
 namespace faroela {
+	result<void> vfs_stream::close() {
+		uv_fs_t request;
+		uv_fs_close(loop, &request, fd, nullptr);
+
+		if(request.result < 0) [[unlikely]] {
+			return libuv_error(static_cast<int>(request.result));
+		}
+
+		uv_fs_req_cleanup(&request);
+
+		return {};
+	}
+
 	result<void> vfs_system::create(context* ctx, bool mapped_reads, vfs_system& vfs) {
 		vfs.ctx = ctx;
 		// NOTE: (From the libuv docs):
@@ -11,6 +24,10 @@ namespace faroela {
 		// 		 > Files opened using UV_FS_O_FILEMAP may cause a fatal crash if the memory mapped read operation fails.
 		// TODO: We probably want to automatically disable this under that case.
 		vfs.mapped_reads = mapped_reads;
+
+		vfs.open_callback = [](auto&) {
+			//ctx->get_system("vfs")
+		};
 
 		vfs.read_callback = [](auto&) {
 			//ctx->get_system("vfs")
