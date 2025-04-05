@@ -12,8 +12,6 @@ namespace sphinx {
 	enum class sync_mode {
 		none,
 		vsync,
-		// NOTE: Will try and set late sync mode if supported with GL API, otherwise fall back to vsync.
-		late
 	};
 
 	enum class graphics_api {
@@ -46,7 +44,7 @@ namespace sphinx {
 	};
 
 	struct graphics_mode {
-		// TODO: Graphic startup options for GLFW vs. what we pass through to
+		// TODO: Graphic startup options for screen vs. what we pass through to
 		//		 the engine-proper for BGFX.
 
 		dimension resolution;
@@ -85,14 +83,14 @@ namespace sphinx {
 
 	private:
 		faroela::context* ctx;
-		void* handle;
+		SDL_Window* window;
+		bool exit;
 
 	public:
 		[[nodiscard]]
 		static result<std::unique_ptr<screen>> create(faroela::context*, const graphics_mode&);
 
 	public:
-		// TODO: Why does this have an explicit destroy function instead of a destructor?
 		[[nodiscard]]
 		result<void> destroy();
 
@@ -104,6 +102,10 @@ namespace sphinx {
 		result<void> register_hid();
 
 		[[nodiscard]]
-		result<void> poll_hid();
+		result<void> poll();
+
+	private:
+		[[nodiscard]]
+		result<void> handle_keyboard_event(SDL_KeyboardEvent&);
 	};
 }

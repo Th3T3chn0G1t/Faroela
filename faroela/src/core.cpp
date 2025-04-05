@@ -67,11 +67,6 @@ namespace faroela {
 		const auto logger = ctx->logger;
 		logger->info("Shutting down...");
 
-		auto result = ctx->render.destroy();
-		if(!result) [[unlikely]] {
-			logger->error("{}", result);
-		}
-
 		for(auto& system : ctx->event_systems) {
 			auto& loop = system.second->loop;
 
@@ -79,13 +74,6 @@ namespace faroela {
 
 			// NOTE: System-specific idlers need to be removed like the above render teardown.
 			int libuv_result = uv_idle_stop(&system.second->idle);
-			if(libuv_result < 0) [[unlikely]] {
-				logger->error("{}", libuv_error(libuv_result));
-			}
-
-			// TODO: Set up a timer signal to timeout joins here to give up on loop closure.
-			// TODO: This sometimes hangs with the loop having a spare handle ref.
-			libuv_result = uv_thread_join(&system.second->thread);
 			if(libuv_result < 0) [[unlikely]] {
 				logger->error("{}", libuv_error(libuv_result));
 			}
@@ -104,9 +92,15 @@ namespace faroela {
 				uv_close(handle, reinterpret_cast<uv_close_cb>(free));
 			}, ctx);
 
+			// TODO: Set up a timer signal to timeout joins here to give up on loop closure.
+			libuv_result = uv_thread_join(&system.second->thread);
+			if(libuv_result < 0) [[unlikely]] {
+				logger->error("{}", libuv_error(libuv_result));
+			}
+
 			libuv_result = uv_loop_close(&loop);
 			if(libuv_result < 0) [[unlikely]] {
-				// TODO: This shouldn't be necessary once teardown logic is fixed.
+				// TODO: This shouldn't be necessary once idle teardown logic is fixed.
 				if(libuv_result == UV_EBUSY) {
 					logger->critical("Could not close event loop '{}' -- skipping...", system.first);
 					continue;

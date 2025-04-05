@@ -18,12 +18,6 @@
 	shallow = true
 	ignore = dirty
 
-[submodule "sphinx/vendor/glfw"]
-	path = sphinx/vendor/glfw
-	url = https://github.com/glfw/glfw
-	shallow = true
-	ignore = dirty
-
 [submodule "faroela/vendor/libuv"]
 	path = faroela/vendor/libuv
 	url = https://github.com/libuv/libuv
@@ -57,5 +51,11 @@
 [submodule "faroela/vendor/entt"]
 	path = faroela/vendor/entt
 	url = https://github.com/skypjack/entt
+	shallow = true
+	ignore = dirty
+
+[submodule "sphinx/vendor/sdl"]
+	path = sphinx/vendor/sdl
+	url = https://github.com/libsdl-org/SDL
 	shallow = true
 	ignore = dirty

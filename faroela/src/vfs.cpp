@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-#pragma once
-
 #include <faroela/vfs.hpp>
 #include <faroela/core.hpp>
 

@@ -16,7 +16,7 @@ namespace faroela {
 
 	struct hid_button_event {
 		faroela::api::hid_port port;
-		faroela::api::hid_button button;
+		unsigned button;
 		bool pressed;
 	};
 
@@ -27,7 +27,9 @@ namespace faroela {
 	};
 
 	struct hid_state {
-		std::array<bool, magic_enum::enum_integer(faroela::api::hid_button::max)> buttons{};
+		// TODO: This is pretty janky -- ideally we should have a HID registry and only track the state of buttons
+		//		 Registered in there but this will do for now.
+		std::array<bool, std::numeric_limits<unsigned short>::max()> buttons{};
 		std::array<float, magic_enum::enum_integer(faroela::api::hid_axis::max)> axes{};
 	};
 

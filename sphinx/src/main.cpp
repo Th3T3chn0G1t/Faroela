@@ -44,7 +44,7 @@ namespace sphinx {
 		}
 
 		while(true) {
-			result = (*screen)->poll_hid();
+			result = (*screen)->poll();
 			if(!result) [[unlikely]] {
 				return forward(result);
 			}
@@ -58,6 +58,12 @@ namespace sphinx {
 			}
 		}
 
+		auto success = faroela::api::faroela_render_detach(ctx);
+		if(!success) {
+			return unexpect("failed to detach render system from screen", error_code::unknown_error);
+		}
+
+		// TODO: Should we skip screen teardown if the render detach fails?
 		result = (*screen)->destroy();
 		if(!result) [[unlikely]] {
 			return forward(result);

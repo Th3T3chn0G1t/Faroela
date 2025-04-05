@@ -50,12 +50,25 @@ def pascal_case(s):
 	return out
 
 def generate_cxx(f, api):
-	f.write('// SPDX-License-Identifier: MIT')
-	f.write('\n')
-	f.write('#pragma once\n')
-	f.write('\n')
-	f.write('extern "C" {\n')
-	f.write('\tnamespace faroela::api {\n')
+	f.write('''// SPDX-License-Identifier: MIT
+
+#pragma once
+
+#ifndef FAROELA_COMMON_EXPORT
+# define FAROELA_COMMON_EXPORT
+#endif
+
+namespace faroela {
+	class context;
+}
+
+namespace faroela::api {
+	using context = faroela::context;
+}
+
+extern "C" {
+	namespace faroela::api {
+''')
 
 	for id, values in api['enumerations'].items():
 		f.write(f'\t\tenum class {snake_case(id)} : int {{\n')
@@ -67,7 +80,7 @@ def generate_cxx(f, api):
 		f.write('\n')
 
 	for id, values in api['functions'].items():
-		f.write(f'\t\tFAROELA_COMMON_EXPORT link_bool faroela_{snake_case(id)}(')
+		f.write(f'\t\tFAROELA_COMMON_EXPORT unsigned faroela_{snake_case(id)}(')
 
 		for i in range(len(values)):
 			parameter = values[i]
@@ -88,7 +101,7 @@ def generate_cxx(f, api):
 			elif parameter == 'uint':
 				parameter = 'unsigned'
 			elif parameter == 'bool':
-				parameter = 'link_bool'
+				parameter = 'unsigned'
 			elif parameter == 'string':
 				parameter = 'char*'
 			elif parameter == 'const_string':
@@ -104,15 +117,25 @@ def generate_cxx(f, api):
 	f.write('}\n')
 
 def generate_cs(f, api):
-	f.write('// SPDX-License-Identifier: MIT')
-	f.write('\n')
-	f.write('using System;\n')
-	f.write('using System.Runtime.InteropServices;\n')
-	f.write('\n')
-	f.write('namespace Pharaoh;\n')
-	f.write('\n')
-	f.write('public unsafe partial class Faroela\n')
-	f.write('{\n')
+	f.write('''// SPDX-License-Identifier: MIT
+
+using System;
+using System.Runtime.InteropServices;
+
+namespace Pharaoh;
+
+public unsafe partial class Faroela
+{
+''')
+	f.write()
+	f.write()
+	f.write()
+	f.write()
+	f.write()
+	f.write()
+	f.write()
+	f.write()
+	f.write()
 
 	for id, values in api['enumerations'].items():
 		f.write(f'\tpublic enum {pascal_case(id)} {{\n')
@@ -170,16 +193,5 @@ generators = {
 	'cs': generate_cs
 }
 
-def splice(f, api, position, language):
-	try:
-		with open(f'extra/{language}/{position}') as h:
-			f.write(h.read())
-	except:
-		pass
-
 with open(parsed.output, 'w') as f:
-	splice(f, api, 'head', parsed.language)
-
 	generators[parsed.language](f, api)
-
-	splice(f, api, 'tail', parsed.language)

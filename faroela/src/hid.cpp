@@ -26,7 +26,7 @@ namespace faroela {
 		};
 
 		hid.button_callback = [&hid](auto& event) {
-			hid.ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), magic_enum::enum_name(event.button), event.pressed ? "pressed" : "released");
+			hid.ctx->logger->info("HID port '{}' button '{}' {}", magic_enum::enum_name(event.port), event.button, event.pressed ? "pressed" : "released");
 
 			auto& state = hid.hid_states[static_cast<std::size_t>(magic_enum::enum_integer(event.port))];
 #ifndef NDEBUG
@@ -35,7 +35,7 @@ namespace faroela {
 			}
 #endif
 
-			state->buttons[static_cast<std::size_t>(magic_enum::enum_integer(event.button))] = event.pressed;
+			state->buttons[event.button] = event.pressed;
 		};
 
 		hid.axis_callback = [&hid](auto& event) {

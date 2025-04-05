@@ -82,6 +82,10 @@ namespace faroela {
 			return forward(result);
 		}
 
+		while(bgfx::renderFrame(0) != bgfx::RenderFrame::NoContext) {
+			continue;
+		}
+
 		delete worker;
 
 		// TODO: Are unregistered uv_idle_t freed by core shutdown?

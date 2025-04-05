@@ -25,6 +25,6 @@ target_precompile_headers(sphinx PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/sphin
 
 target_include_directories(sphinx PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/)
 
-target_link_libraries(sphinx PRIVATE faroela glfw)
+target_link_libraries(sphinx PRIVATE faroela SDL3-static)
 
 cxx_default_diagnostics(sphinx)
